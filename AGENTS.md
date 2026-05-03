@@ -80,7 +80,7 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 Automatic deployment is configured in `.github/workflows/deploy.yml`:
 
 - trigger: push to `main` or manual `workflow_dispatch`;
-- setup: `oven-sh/setup-bun@v2` with Bun `1.3.6`;
+- setup: Node `24` for Astro compatibility, then `oven-sh/setup-bun@v2` with Bun `1.3.6`;
 - build: `bun install --frozen-lockfile --network-concurrency 1 --registry https://registry.npmjs.org` and `bun run build`;
 - deploy target: `gh-pages` branch;
 - action: `peaceiris/actions-gh-pages@v4`;
