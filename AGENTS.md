@@ -78,7 +78,7 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 Automatic deployment is configured in `.github/workflows/deploy.yml`:
 
 - trigger: push to `main` or manual `workflow_dispatch`;
-- build: `npm ci` and `npm run build`;
+- build: `yarn install --non-interactive --no-lockfile --ignore-engines` and `yarn build`;
 - deploy target: `gh-pages` branch;
 - action: `peaceiris/actions-gh-pages@v4`;
 - `keep_files: true` is intentional so old hashed assets are not deleted.
