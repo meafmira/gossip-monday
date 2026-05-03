@@ -28,6 +28,22 @@ npm install
 npm run dev
 npm run build
 npm run preview
+npm run deploy
+```
+
+## Деплой
+
+Сайт опубликован через GitHub Pages из ветки `gh-pages`.
+
+URL:
+
+- https://meafmira.github.io/gossip-monday/
+- http://meafmira.me/gossip-monday/
+
+Чтобы обновить опубликованную версию:
+
+```bash
+npm run deploy
 ```
 
 ## Где менять контент
