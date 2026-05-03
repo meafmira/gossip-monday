@@ -27,7 +27,9 @@ npm run preview
 npm run deploy
 ```
 
-`npm run deploy` builds the site and publishes `dist/` to the `gh-pages` branch using the `gh-pages` CLI.
+Deploys happen automatically on every push to `main` via `.github/workflows/deploy.yml`.
+
+`npm run deploy` can still be used for manual local deployment. It builds the site and publishes `dist/` to the `gh-pages` branch using the `gh-pages` CLI.
 
 ## Structure
 
@@ -73,11 +75,23 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 
 ### Deployment and old assets
 
-The `deploy` script in `package.json` uses `gh-pages` with `--add` so old hashed assets are not deleted. This reduces the chance that cached HTML points to a CSS file that no longer exists.
+Automatic deployment is configured in `.github/workflows/deploy.yml`:
 
-Do not change this without a good reason:
+- trigger: push to `main` or manual `workflow_dispatch`;
+- build: `npm ci` and `npm run build`;
+- deploy target: `gh-pages` branch;
+- action: `peaceiris/actions-gh-pages@v4`;
+- `keep_files: true` is intentional so old hashed assets are not deleted.
+
+The local `deploy` script in `package.json` uses `gh-pages` with `--add` for the same reason. This reduces the chance that cached HTML points to a CSS file that no longer exists.
+
+Do not change these without a good reason:
 
 ```bash
+# GitHub Actions
+keep_files: true
+
+# local deploy
 npx gh-pages -d dist -b gh-pages -t --add
 ```
 
