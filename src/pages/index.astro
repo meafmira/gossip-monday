@@ -1,0 +1,613 @@
+---
+import '../styles/global.css';
+import { members, initialBacklog, reports, galleryEvents } from '../data/club';
+
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const nextMeetingIso = '2026-05-04T12:30:00+02:00';
+const accessMembers = members.filter((member) => member.canLetIn);
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Сплетни по понедельникам — официально неофициальный клуб жизненно важных историй." />
+    <link rel="icon" href={`${base}favicon.svg`} />
+    <title>Сплетни по понедельникам</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="page-shell nav" aria-label="Главная навигация">
+        <a class="logo" href="#top" aria-label="Сплетни по понедельникам">
+          <span class="logo-mark">🫖</span>
+          <span>Сплетни по понедельникам</span>
+        </a>
+        <div class="nav-links">
+          <a href="#meeting">Встреча</a>
+          <a href="#backlog">Backlog</a>
+          <a href="#vacations">Отпуска</a>
+          <a href="#members">Участники</a>
+          <a href="#join">Вступить</a>
+          <a href={`${base}drama`}>/drama</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="page-shell hero">
+        <span class="kicker">Breaking lunch news · access by invitation only</span>
+        <div class="hero-grid">
+          <div>
+            <h1 class="headline">Сплетни <span>по понедельникам</span></h1>
+            <p class="lead">
+              Официально неофициальный комитет по сбору, валидации и неконтролируемому распространению
+              жизненно важных историй. Заседаем в Booking.com office, когда все морально готовы.
+            </p>
+            <div class="hero-actions">
+              <button class="btn hot" data-open-modal="rsvp-modal">Отметиться на встречу</button>
+              <button class="btn acid" data-open-modal="gossip-modal">Submit gossip</button>
+              <a class="btn" href={`${base}drama`}>Секретная конституция</a>
+            </div>
+          </div>
+
+          <aside class="tabloid-card" aria-label="Следующее заседание">
+            <p class="card-title">Следующее заседание комитета</p>
+            <div class="meta-list">
+              <div class="meta-item"><span>Дата</span><strong>04.05.2026</strong></div>
+              <div class="meta-item"><span>Время</span><strong>когда все морально готовы</strong></div>
+              <div class="meta-item"><span>Локация</span><strong>Booking.com office</strong></div>
+              <div class="meta-item"><span>Уровень</span><strong>Lunch-level emergency</strong></div>
+            </div>
+            <div class="countdown" data-countdown={nextMeetingIso} aria-label="Обратный отсчёт">
+              <div><strong data-days>0</strong><span>дней</span></div>
+              <div><strong data-hours>0</strong><span>часов</span></div>
+              <div><strong data-minutes>0</strong><span>минут</span></div>
+              <div><strong data-seconds>0</strong><span>секунд</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <div class="breaking-line" aria-hidden="true">
+        <div>
+          &nbsp; Срочно: backlog пополняется · Никто не уходит без контекста · Если история начинается со слов “короче”, готовьте календарь · Office access requires certified door person ·
+          Срочно: backlog пополняется · Никто не уходит без контекста · Если история начинается со слов “короче”, готовьте календарь · Office access requires certified door person ·
+        </div>
+      </div>
+
+      <section class="page-shell section" id="about">
+        <div class="section-header">
+          <h2 class="section-title">О клубе</h2>
+          <span class="section-tag">Fake official, real useful</span>
+        </div>
+        <div class="grid-3">
+          <article class="section-card">
+            <h3>Что это?</h3>
+            <p>
+              Маленькое комьюнити из 8 человек, которое встречается по понедельникам на ланч, чтобы обсудить
+              истории из жизни, детали, недосказанности и всё то, что не переживёт обычный чат без контекста.
+            </p>
+          </article>
+          <article class="section-card">
+            <h3>Зачем сайт?</h3>
+            <p>
+              Чтобы видеть RSVP, vacation intelligence, gossip backlog, отчёты прошлых заседаний, фото с событий
+              и самое главное — кто сегодня способен открыть двери Booking.com office.
+            </p>
+          </article>
+          <article class="section-card">
+            <h3>Privacy policy</h3>
+            <p>
+              Сайт пока без пароля и не индексируется поисковиками. Если сплетни перейдут в режим “classified”,
+              включаем auth через magic link или Google/Apple и делаем вид, что так и было запланировано.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="page-shell section" id="meeting">
+        <div class="section-header">
+          <h2 class="section-title">Следующая встреча</h2>
+          <span class="section-tag">04.05.2026</span>
+        </div>
+        <div class="grid-2">
+          <article class="section-card">
+            <h3>План заседания</h3>
+            <div class="meta-list">
+              <div class="meta-item"><span>Opening</span><strong>Проверка моральной готовности</strong></div>
+              <div class="meta-item"><span>Backlog review</span><strong>Выбор тем, достойных ланча</strong></div>
+              <div class="meta-item"><span>Main tea</span><strong>Обсуждение историй из жизни</strong></div>
+              <div class="meta-item"><span>Action items</span><strong>Кто что должен “потом рассказать”</strong></div>
+            </div>
+            <div class="card-actions">
+              <button class="btn hot" data-open-modal="rsvp-modal">Я приду / я не выдержу</button>
+            </div>
+          </article>
+
+          <article class="section-card">
+            <div id="access-alert" class="alert ok">
+              <strong>Office access: под контролем</strong>
+              Дежурные шаманы входной двери: {accessMembers.map((member) => member.name).join(', ')}.
+            </div>
+            <div class="rsvp-board" id="rsvp-board" style="margin-top: 18px;"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page-shell section" id="backlog">
+        <div class="section-header">
+          <h2 class="section-title">Gossip backlog</h2>
+          <span class="section-tag">Tea queue</span>
+        </div>
+        <div class="grid-2">
+          <article class="section-card">
+            <h3>Темы на очное обсуждение</h3>
+            <p>
+              Всё, что прошло предварительную экспертизу в чате и было признано достаточно подозрительным,
+              попадает сюда. Анонимность разрешена, драматичность приветствуется.
+            </p>
+            <div class="card-actions">
+              <button class="btn acid" data-open-modal="gossip-modal">Добавить сплетню</button>
+            </div>
+          </article>
+          <div class="backlog-list" id="backlog-list"></div>
+        </div>
+      </section>
+
+      <section class="page-shell section" id="vacations">
+        <div class="section-header">
+          <h2 class="section-title">Vacation intelligence</h2>
+          <span class="section-tag">Кто исчезает из сюжета</span>
+        </div>
+        <div class="grid-2">
+          <article class="section-card">
+            <h3>Календарь отсутствий</h3>
+            <p>
+              Достаточно указать даты и причину. Поддерживаются отпуск, больничный, командировка, удалёнка,
+              “ментально отсутствую” и другое официально неофициальное состояние.
+            </p>
+            <div class="card-actions">
+              <button class="btn hot" data-open-modal="vacation-modal">Добавить отсутствие</button>
+            </div>
+          </article>
+          <div class="vacation-list" id="vacation-list"></div>
+        </div>
+      </section>
+
+      <section class="page-shell section" id="members">
+        <div class="section-header">
+          <h2 class="section-title">Участники</h2>
+          <span class="section-tag">8 certified witnesses</span>
+        </div>
+        <div class="member-grid">
+          {members.map((member) => (
+            <article class="member-card">
+              <div class="avatar" style={`background:${member.color}`}>{member.avatar}</div>
+              <h3>{member.name}</h3>
+              <span class="badge">{member.nickname}</span>
+              <p class="role">{member.role}</p>
+              <p>{member.funFact}</p>
+              <span class={`badge ${member.canLetIn ? 'status-yes' : 'status-unknown'}`}>
+                {member.canLetIn ? '🔑 может пустить в офис' : '🚪 guest mode'}
+              </span>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="page-shell section" id="reports">
+        <div class="section-header">
+          <h2 class="section-title">Reports</h2>
+          <span class="section-tag">Для тех, кто отсутствовал</span>
+        </div>
+        <div class="report-list">
+          {reports.map((report) => (
+            <article class="report-item">
+              <h3>{report.title}</h3>
+              <span class="badge">{report.date}</span>
+              <p>{report.summary}</p>
+              <ul>
+                {report.outcomes.map((outcome) => <li>{outcome}</li>)}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="page-shell section" id="gallery">
+        <div class="section-header">
+          <h2 class="section-title">Gallery</h2>
+          <span class="section-tag">Фото-доказательства</span>
+        </div>
+        <div class="grid-2">
+          {galleryEvents.map((event) => (
+            <article class="section-card">
+              <h3>{event.title}</h3>
+              <span class="badge">{event.date}</span>
+              <div class="gallery-grid" style="margin-top: 14px;">
+                {event.photos.map((photo) => (
+                  <button class="photo-tile" data-lightbox={photo} aria-label={`Открыть ${photo}`}>{photo}</button>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="page-shell section" id="rules">
+        <div class="section-header">
+          <h2 class="section-title">Rules & traditions</h2>
+          <span class="section-tag">Пока не традиции, но уже угроза</span>
+        </div>
+        <ol class="rules-list">
+          <li><strong>То, что сказано на ланче, может стать report-ом, но только с уважением к сюжету.</strong></li>
+          <li><strong>Фраза “я быстро расскажу” автоматически добавляет теме +15 минут бюджета.</strong></li>
+          <li><strong>Если история требует предысторию, предыстория считается отдельной сплетней.</strong></li>
+          <li><strong>Человек, который может пустить в офис, получает временный статус Door Executive Officer.</strong></li>
+          <li><strong>Отсутствующим положен отчёт, но без гарантии эмоциональной полноты.</strong></li>
+        </ol>
+      </section>
+
+      <section class="page-shell section" id="join">
+        <div class="section-header">
+          <h2 class="section-title">How to join</h2>
+          <span class="section-tag">Invite only</span>
+        </div>
+        <div class="grid-2">
+          <article class="section-card">
+            <h3>Вступление в клуб</h3>
+            <p>
+              Войти можно только по приглашению одного из участников. Кандидат должен уметь слушать, держать
+              контекст и не произносить “ну это неинтересно” в момент, когда всем уже интересно.
+            </p>
+            <div class="card-actions">
+              <button class="btn acid" data-open-modal="join-modal">Подать заявку</button>
+            </div>
+          </article>
+          <article class="section-card">
+            <h3>Closest special events</h3>
+            <p>
+              Здесь появятся дни рождения, поездки, emergency sessions и другие события, после которых backlog
+              сам себя не заполнит.</p>
+            <div class="meta-list">
+              <div class="meta-item"><span>Next</span><strong>04.05.2026 — regular lunch gossip</strong></div>
+              <div class="meta-item"><span>Status</span><strong>ожидаем поводы для драматичных бейджей</strong></div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-shell footer">
+      <p>© 2026 Сплетни по понедельникам. Официально неофициально. Для тех, у кого есть ссылка.</p>
+    </footer>
+
+    <dialog class="modal" id="rsvp-modal">
+      <form class="modal-card form-grid" id="rsvp-form" method="dialog">
+        <div class="modal-head">
+          <h2>RSVP на ланч</h2>
+          <button class="close-btn" value="cancel" aria-label="Закрыть">×</button>
+        </div>
+        <label>Кто ты?
+          <select name="member" required>
+            {members.map((member) => <option value={member.id}>{member.name}</option>)}
+          </select>
+        </label>
+        <label>Статус
+          <select name="status" required>
+            <option value="yes">Приду</option>
+            <option value="maybe">Возможно, если переживу понедельник</option>
+            <option value="no">Не приду</option>
+          </select>
+        </label>
+        <label class="inline-check"><input type="checkbox" name="canLetIn" /> Могу пустить людей в офис</label>
+        <label>Комментарий
+          <textarea name="comment" placeholder="Например: приду, если встреча не станет митингом о встрече"></textarea>
+        </label>
+        <button class="btn hot" type="submit">Сохранить драматичный статус</button>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="gossip-modal">
+      <form class="modal-card form-grid" id="gossip-form" method="dialog">
+        <div class="modal-head">
+          <h2>Submit gossip</h2>
+          <button class="close-btn" value="cancel" aria-label="Закрыть">×</button>
+        </div>
+        <label>Заголовок
+          <input name="title" required placeholder="Та самая история, которую надо обсудить лично" />
+        </label>
+        <label>Автор
+          <input name="author" placeholder="Можно оставить пустым и уйти в тень" />
+        </label>
+        <label class="inline-check"><input type="checkbox" name="anonymous" /> Анонимно, но с драмой</label>
+        <button class="btn acid" type="submit">Добавить в backlog</button>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="vacation-modal">
+      <form class="modal-card form-grid" id="vacation-form" method="dialog">
+        <div class="modal-head">
+          <h2>Добавить отсутствие</h2>
+          <button class="close-btn" value="cancel" aria-label="Закрыть">×</button>
+        </div>
+        <label>Участник
+          <select name="member" required>
+            {members.map((member) => <option value={member.id}>{member.name}</option>)}
+          </select>
+        </label>
+        <div class="grid-2">
+          <label>С
+            <input name="from" type="date" required />
+          </label>
+          <label>По
+            <input name="to" type="date" required />
+          </label>
+        </div>
+        <label>Причина
+          <select name="reason" required>
+            <option>отпуск</option>
+            <option>болею</option>
+            <option>командировка</option>
+            <option>удалёнка</option>
+            <option>ментально отсутствую</option>
+            <option>другое</option>
+          </select>
+        </label>
+        <button class="btn hot" type="submit">Зафиксировать исчезновение</button>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="join-modal">
+      <form class="modal-card form-grid" method="dialog">
+        <div class="modal-head">
+          <h2>Application form</h2>
+          <button class="close-btn" value="cancel" aria-label="Закрыть">×</button>
+        </div>
+        <label>Имя
+          <input name="name" required placeholder="Как вас представлять комитету" />
+        </label>
+        <label>Кто пригласил
+          <input name="invitedBy" required placeholder="Имя участника, который готов рискнуть репутацией" />
+        </label>
+        <label>Почему вы хотите вступить?
+          <textarea name="reason" required placeholder="Опишите ваш опыт в наблюдении странных офисных ситуаций"></textarea>
+        </label>
+        <button class="btn acid" type="submit">Отправить заявку в void</button>
+      </form>
+    </dialog>
+
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фото">
+      <button class="lightbox-content" id="lightbox-content" type="button">Photo</button>
+    </div>
+
+    <script id="members-data" type="application/json" set:html={JSON.stringify(members)}></script>
+    <script id="backlog-data" type="application/json" set:html={JSON.stringify(initialBacklog)}></script>
+    <script is:inline>
+      const members = JSON.parse(document.getElementById('members-data').textContent);
+      const initialBacklog = JSON.parse(document.getElementById('backlog-data').textContent);
+      const storage = {
+        rsvp: 'gossip-monday:rsvp',
+        backlog: 'gossip-monday:backlog',
+        vacations: 'gossip-monday:vacations',
+      };
+
+      const statusCopy = {
+        yes: ['Приду', 'status-yes'],
+        no: ['Не приду', 'status-no'],
+        maybe: ['Возможно', 'status-maybe'],
+        unknown: ['Не отметился', 'status-unknown'],
+      };
+
+      const getJson = (key, fallback) => {
+        try {
+          return JSON.parse(localStorage.getItem(key)) ?? fallback;
+        } catch {
+          return fallback;
+        }
+      };
+
+      const setJson = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+      const memberById = (id) => members.find((member) => member.id === id);
+
+      function initRsvp() {
+        const existing = getJson(storage.rsvp, null);
+        if (existing) return existing;
+        const defaults = Object.fromEntries(
+          members.map((member) => [
+            member.id,
+            {
+              status: 'unknown',
+              comment: '',
+              canLetIn: member.canLetIn,
+            },
+          ])
+        );
+        setJson(storage.rsvp, defaults);
+        return defaults;
+      }
+
+      function renderRsvp() {
+        const data = initRsvp();
+        const board = document.getElementById('rsvp-board');
+        board.innerHTML = members.map((member) => {
+          const item = data[member.id] || { status: 'unknown', comment: '', canLetIn: member.canLetIn };
+          const [label, cls] = statusCopy[item.status] || statusCopy.unknown;
+          return `
+            <div class="rsvp-row">
+              <div class="avatar" style="background:${member.color}">${member.avatar}</div>
+              <div>
+                <strong>${member.name}</strong><br />
+                <span class="status-pill ${cls}">${label}</span>
+                ${item.canLetIn ? '<span class="status-pill status-yes">🔑 впускает</span>' : ''}
+                ${item.comment ? `<p style="margin:8px 0 0;color:#555">“${escapeHtml(item.comment)}”</p>` : ''}
+              </div>
+              <button class="btn ghost" data-edit-rsvp="${member.id}">Update</button>
+            </div>
+          `;
+        }).join('');
+
+        const activeDoorPeople = members.filter((member) => data[member.id]?.canLetIn && data[member.id]?.status !== 'no');
+        const alert = document.getElementById('access-alert');
+        if (activeDoorPeople.length) {
+          alert.className = 'alert ok';
+          alert.innerHTML = `<strong>Office access: под контролем</strong>Дежурные шаманы входной двери: ${activeDoorPeople.map((member) => member.name).join(', ')}.`;
+        } else {
+          alert.className = 'alert';
+          alert.innerHTML = '<strong>КРАСНЫЙ УРОВЕНЬ ДРАМЫ</strong>Ни один авторизованный офисный шаман не подтвердил возможность открыть дверь. Встреча рискует стать уличным стендапом у входа.';
+        }
+      }
+
+      function renderBacklog() {
+        const backlog = getJson(storage.backlog, initialBacklog);
+        const list = document.getElementById('backlog-list');
+        list.innerHTML = backlog.map((item, index) => `
+          <article class="backlog-item">
+            <span class="badge">#${String(index + 1).padStart(2, '0')}</span>
+            ${item.anonymous ? '<span class="badge status-maybe">anonymous mode</span>' : ''}
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>Автор: <strong>${escapeHtml(item.anonymous ? 'Анонимный источник' : item.author || 'Редакция')}</strong></p>
+          </article>
+        `).join('');
+      }
+
+      function renderVacations() {
+        const vacations = getJson(storage.vacations, [
+          { id: 'v1', member: 'liza', from: '2026-05-11', to: '2026-05-13', reason: 'ментально отсутствую' },
+          { id: 'v2', member: 'dimi', from: '2026-05-18', to: '2026-05-22', reason: 'отпуск' },
+        ]);
+        setJson(storage.vacations, vacations);
+        const list = document.getElementById('vacation-list');
+        if (!vacations.length) {
+          list.innerHTML = '<article class="vacation-item"><strong>Пока все в сюжете.</strong><p>Подозрительно, но зафиксировано.</p></article>';
+          return;
+        }
+        list.innerHTML = vacations.map((item) => {
+          const member = memberById(item.member);
+          return `
+            <article class="vacation-item">
+              <span class="badge">${escapeHtml(item.reason)}</span>
+              <h3>${member ? member.name : 'Неизвестный участник'}</h3>
+              <p><strong>${formatDate(item.from)}</strong> — <strong>${formatDate(item.to)}</strong></p>
+            </article>
+          `;
+        }).join('');
+      }
+
+      function formatDate(value) {
+        return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(value + 'T00:00:00'));
+      }
+
+      function escapeHtml(value) {
+        return String(value || '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
+      }
+
+      function setupCountdown() {
+        const root = document.querySelector('[data-countdown]');
+        if (!root) return;
+        const target = new Date(root.dataset.countdown).getTime();
+        const update = () => {
+          const distance = Math.max(0, target - Date.now());
+          const days = Math.floor(distance / 86400000);
+          const hours = Math.floor((distance % 86400000) / 3600000);
+          const minutes = Math.floor((distance % 3600000) / 60000);
+          const seconds = Math.floor((distance % 60000) / 1000);
+          root.querySelector('[data-days]').textContent = days;
+          root.querySelector('[data-hours]').textContent = hours;
+          root.querySelector('[data-minutes]').textContent = minutes;
+          root.querySelector('[data-seconds]').textContent = seconds;
+        };
+        update();
+        setInterval(update, 1000);
+      }
+
+      document.addEventListener('click', (event) => {
+        const modalButton = event.target.closest('[data-open-modal]');
+        if (modalButton) {
+          document.getElementById(modalButton.dataset.openModal)?.showModal();
+        }
+
+        const editButton = event.target.closest('[data-edit-rsvp]');
+        if (editButton) {
+          const data = initRsvp();
+          const form = document.getElementById('rsvp-form');
+          const memberId = editButton.dataset.editRsvp;
+          form.elements.member.value = memberId;
+          form.elements.status.value = data[memberId]?.status || 'unknown';
+          form.elements.canLetIn.checked = Boolean(data[memberId]?.canLetIn);
+          form.elements.comment.value = data[memberId]?.comment || '';
+          document.getElementById('rsvp-modal').showModal();
+        }
+
+        const photo = event.target.closest('[data-lightbox]');
+        if (photo) {
+          document.getElementById('lightbox-content').textContent = photo.dataset.lightbox;
+          document.getElementById('lightbox').classList.add('active');
+        }
+
+        if (event.target.id === 'lightbox' || event.target.id === 'lightbox-content') {
+          document.getElementById('lightbox').classList.remove('active');
+        }
+      });
+
+      document.getElementById('rsvp-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const data = initRsvp();
+        data[form.elements.member.value] = {
+          status: form.elements.status.value,
+          canLetIn: form.elements.canLetIn.checked,
+          comment: form.elements.comment.value.trim(),
+        };
+        setJson(storage.rsvp, data);
+        renderRsvp();
+        document.getElementById('rsvp-modal').close();
+      });
+
+      document.getElementById('gossip-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const backlog = getJson(storage.backlog, initialBacklog);
+        backlog.unshift({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+          title: form.elements.title.value.trim(),
+          author: form.elements.author.value.trim() || 'Редакция',
+          anonymous: form.elements.anonymous.checked,
+        });
+        setJson(storage.backlog, backlog);
+        renderBacklog();
+        form.reset();
+        document.getElementById('gossip-modal').close();
+      });
+
+      document.getElementById('vacation-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const vacations = getJson(storage.vacations, []);
+        vacations.unshift({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+          member: form.elements.member.value,
+          from: form.elements.from.value,
+          to: form.elements.to.value,
+          reason: form.elements.reason.value,
+        });
+        setJson(storage.vacations, vacations);
+        renderVacations();
+        form.reset();
+        document.getElementById('vacation-modal').close();
+      });
+
+      document.querySelector('#join-modal form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        alert('Заявка отправлена в void. В реальном MVP подключим Netlify Forms или Supabase.');
+        document.getElementById('join-modal').close();
+      });
+
+      setupCountdown();
+      renderRsvp();
+      renderBacklog();
+      renderVacations();
+    </script>
+  </body>
+</html>
