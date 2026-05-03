@@ -12,6 +12,7 @@
   --blue: #0077ff;
   --line: rgba(22, 22, 22, 0.18);
   --shadow: 0 18px 60px rgba(18, 18, 18, 0.14);
+  --asset-version: 202605031557;
 }
 
 * {
