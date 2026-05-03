@@ -1,0 +1,23 @@
+---
+import { galleryEvents } from '../data/club';
+---
+
+<section class="page-shell section" id="gallery">
+  <div class="section-header">
+    <h2 class="section-title">Gallery</h2>
+    <span class="section-tag">Фото-доказательства</span>
+  </div>
+  <div class="grid-2">
+    {galleryEvents.map((event) => (
+      <article class="section-card">
+        <h3>{event.title}</h3>
+        <span class="badge">{event.date}</span>
+        <div class="gallery-grid" style="margin-top: 14px;">
+          {event.photos.map((photo) => (
+            <button class="photo-tile" data-lightbox={photo} aria-label={`Открыть ${photo}`}>{photo}</button>
+          ))}
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

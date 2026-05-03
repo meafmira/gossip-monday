@@ -1,0 +1,34 @@
+---
+import { members } from '../data/club';
+
+const accessMembers = members.filter((m) => m.canLetIn);
+---
+
+<section class="page-shell section" id="meeting">
+  <div class="section-header">
+    <h2 class="section-title">Следующая встреча</h2>
+    <span class="section-tag">04.05.2026</span>
+  </div>
+  <div class="grid-2">
+    <article class="section-card">
+      <h3>План заседания</h3>
+      <div class="meta-list">
+        <div class="meta-item"><span>Opening</span><strong>Проверка моральной готовности</strong></div>
+        <div class="meta-item"><span>Backlog review</span><strong>Выбор тем, достойных ланча</strong></div>
+        <div class="meta-item"><span>Main tea</span><strong>Обсуждение историй из жизни</strong></div>
+        <div class="meta-item"><span>Action items</span><strong>Кто что должен "потом рассказать"</strong></div>
+      </div>
+      <div class="card-actions">
+        <button class="btn hot" data-open-modal="rsvp-modal">Я приду / я не выдержу</button>
+      </div>
+    </article>
+
+    <article class="section-card">
+      <div id="access-alert" class="alert ok">
+        <strong>Office access: под контролем</strong>
+        Дежурные шаманы входной двери: {accessMembers.map((m) => m.name).join(', ')}.
+      </div>
+      <div class="rsvp-board" id="rsvp-board" style="margin-top: 18px;"></div>
+    </article>
+  </div>
+</section>

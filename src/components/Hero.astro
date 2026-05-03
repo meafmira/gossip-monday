@@ -1,0 +1,40 @@
+---
+import { members } from '../data/club';
+
+const nextMeetingIso = '2026-05-04T12:30:00+02:00';
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+---
+
+<section class="page-shell hero">
+  <span class="kicker">Breaking lunch news · access by invitation only</span>
+  <div class="hero-grid">
+    <div>
+      <h1 class="headline">Сплетни <span>по понедельникам</span></h1>
+      <p class="lead">
+        Официально неофициальный комитет по сбору, валидации и неконтролируемому распространению
+        жизненно важных историй. Заседаем в Booking.com office, когда все морально готовы.
+      </p>
+      <div class="hero-actions">
+        <button class="btn hot" data-open-modal="rsvp-modal">Отметиться на встречу</button>
+        <button class="btn acid" data-open-modal="gossip-modal">Submit gossip</button>
+        <a class="btn" href={`${base}drama`}>Секретная конституция</a>
+      </div>
+    </div>
+
+    <aside class="tabloid-card" aria-label="Следующее заседание">
+      <p class="card-title">Следующее заседание комитета</p>
+      <div class="meta-list">
+        <div class="meta-item"><span>Дата</span><strong>04.05.2026</strong></div>
+        <div class="meta-item"><span>Время</span><strong>когда все морально готовы</strong></div>
+        <div class="meta-item"><span>Локация</span><strong>Booking.com office</strong></div>
+        <div class="meta-item"><span>Уровень</span><strong>Lunch-level emergency</strong></div>
+      </div>
+      <div class="countdown" data-countdown={nextMeetingIso} aria-label="Обратный отсчёт">
+        <div><strong data-days>0</strong><span>дней</span></div>
+        <div><strong data-hours>0</strong><span>часов</span></div>
+        <div><strong data-minutes>0</strong><span>минут</span></div>
+        <div><strong data-seconds>0</strong><span>секунд</span></div>
+      </div>
+    </aside>
+  </div>
+</section>

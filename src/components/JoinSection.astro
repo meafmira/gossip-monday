@@ -1,0 +1,32 @@
+---
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+---
+
+<section class="page-shell section" id="join">
+  <div class="section-header">
+    <h2 class="section-title">How to join</h2>
+    <span class="section-tag">Invite only</span>
+  </div>
+  <div class="grid-2">
+    <article class="section-card">
+      <h3>Вступление в клуб</h3>
+      <p>
+        Войти можно только по приглашению одного из участников. Кандидат должен уметь слушать, держать
+        контекст и не произносить "ну это неинтересно" в момент, когда всем уже интересно.
+      </p>
+      <div class="card-actions">
+        <button class="btn acid" data-open-modal="join-modal">Подать заявку</button>
+      </div>
+    </article>
+    <article class="section-card">
+      <h3>Closest special events</h3>
+      <p>
+        Здесь появятся дни рождения, поездки, emergency sessions и другие события, после которых backlog
+        сам себя не заполнит.</p>
+      <div class="meta-list">
+        <div class="meta-item"><span>Next</span><strong>04.05.2026 — regular lunch gossip</strong></div>
+        <div class="meta-item"><span>Status</span><strong>ожидаем поводы для драматичных бейджей</strong></div>
+      </div>
+    </article>
+  </div>
+</section>
