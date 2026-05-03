@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" href={`${base}favicon.svg`} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="page-shell nav" aria-label="Главная навигация">
+        <a class="logo" href={base} aria-label="Сплетни по понедельникам">
+          <span class="logo-mark">🫖</span>
+          <span>Сплетни по понедельникам</span>
+        </a>
+        <slot name="nav-links">
+          <div class="nav-links">
+            <a href={base}>На главную</a>
+          </div>
+        </slot>
+      </nav>
+    </header>
+
+    <slot />
+
+    <footer class="page-shell footer">
+      <slot name="footer">
+        <p>© 2026 Сплетни по понедельникам. Официально неофициально. Для тех, у кого есть ссылка.</p>
+      </slot>
+    </footer>
+  </body>
+</html>
