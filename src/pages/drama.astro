@@ -1,125 +1,108 @@
 ---
-import '../styles/global.css';
+import Base from '../layouts/Base.astro';
 
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 ---
 
-<html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <meta name="description" content="Секретная конституция клуба Сплетни по понедельникам." />
-    <link rel="icon" href={`${base}favicon.svg`} />
-    <title>/drama · Конституция клуба</title>
-  </head>
-  <body>
-    <header class="topbar">
-      <nav class="page-shell nav" aria-label="Главная навигация">
-        <a class="logo" href={base}>
-          <span class="logo-mark">🫖</span>
-          <span>Сплетни по понедельникам</span>
-        </a>
-        <div class="nav-links">
-          <a href={base}>На главную</a>
-          <a href={`${base}#backlog`}>Backlog</a>
-          <a href={`${base}#meeting`}>Встреча</a>
-        </div>
-      </nav>
-    </header>
+<Base
+  title="/drama · Конституция клуба"
+  description="Секретная конституция клуба Сплетни по понедельникам."
+>
+  <div class="nav-links" slot="nav-links">
+    <a href={base}>На главную</a>
+    <a href={`${base}#backlog`}>Backlog</a>
+    <a href={`${base}#meeting`}>Встреча</a>
+  </div>
 
-    <main class="page-shell hero">
-      <span class="kicker">/drama · classified but not really</span>
-      <div class="hero-grid">
-        <section>
-          <h1 class="headline">Конституция <span>клуба</span></h1>
-          <p class="lead">
-            Документ сомнительной юридической силы, но высокой эмоциональной значимости. Обнаружен в секретной
-            директории `/drama`. Если вы здесь случайно — уже поздно, вы видели слишком много.
-          </p>
-          <div class="hero-actions">
-            <a class="btn hot" href={base}>Вернуться до того, как началось</a>
-            <button class="btn acid" id="easter-trigger">Нажать подозрительную кнопку</button>
-          </div>
-        </section>
-        <aside class="tabloid-card">
-          <p class="card-title">Статус документа</p>
-          <div class="meta-list">
-            <div class="meta-item"><span>Версия</span><strong>v0.1-chaos</strong></div>
-            <div class="meta-item"><span>Approved by</span><strong>никто, но все согласны</strong></div>
-            <div class="meta-item"><span>Legal value</span><strong>эмоциональная</strong></div>
-            <div class="meta-item"><span>Threat level</span><strong>чайник закипает</strong></div>
-          </div>
-        </aside>
-      </div>
-    </main>
-
-    <div class="breaking-line" aria-hidden="true">
-      <div>
-        &nbsp; Article 404: gossip not found, drama still cached · Секретность соблюдается примерно · Конституция может меняться после каждого ланча ·
-        Article 404: gossip not found, drama still cached · Секретность соблюдается примерно · Конституция может меняться после каждого ланча ·
-      </div>
-    </div>
-
-    <section class="page-shell section">
-      <div class="section-header">
-        <h2 class="section-title">Преамбула</h2>
-        <span class="section-tag">Мы, народ ланчей</span>
-      </div>
-      <article class="section-card">
-        <p>
-          Мы, участники клуба “Сплетни по понедельникам”, находясь в здравом уме, переменном настроении и
-          приблизительной готовности к рабочей неделе, учреждаем настоящий документ для защиты права каждого
-          человека сказать: “подождите, там была предыстория”.
+  <main class="page-shell hero">
+    <span class="kicker">/drama · classified but not really</span>
+    <div class="hero-grid">
+      <section>
+        <h1 class="headline">Конституция <span>клуба</span></h1>
+        <p class="lead">
+          Документ сомнительной юридической силы, но высокой эмоциональной значимости. Обнаружен в секретной
+          директории `/drama`. Если вы здесь случайно — уже поздно, вы видели слишком много.
         </p>
-      </article>
-    </section>
+        <div class="hero-actions">
+          <a class="btn hot" href={base}>Вернуться до того, как началось</a>
+          <button class="btn acid" id="easter-trigger">Нажать подозрительную кнопку</button>
+        </div>
+      </section>
+      <aside class="tabloid-card">
+        <p class="card-title">Статус документа</p>
+        <div class="meta-list">
+          <div class="meta-item"><span>Версия</span><strong>v0.1-chaos</strong></div>
+          <div class="meta-item"><span>Approved by</span><strong>никто, но все согласны</strong></div>
+          <div class="meta-item"><span>Legal value</span><strong>эмоциональная</strong></div>
+          <div class="meta-item"><span>Threat level</span><strong>чайник закипает</strong></div>
+        </div>
+      </aside>
+    </div>
+  </main>
 
-    <section class="page-shell section">
-      <div class="section-header">
-        <h2 class="section-title">Основные статьи</h2>
-        <span class="section-tag">Drama governance</span>
-      </div>
-      <ol class="rules-list">
-        <li><strong>Каждая сплетня имеет право на контекст, даже если контекст длиннее самой сплетни.</strong></li>
-        <li><strong>Анонимный источник считается валидным, если хотя бы один участник сделал лицо “понятно”.</strong></li>
-        <li><strong>Фраза “это не gossip, просто update” не освобождает историю от попадания в backlog.</strong></li>
-        <li><strong>Если участник отсутствовал, он имеет право на report, но не на полную реконструкцию интонаций.</strong></li>
-        <li><strong>Door Executive Officer несёт моральную ответственность за то, чтобы встреча не осталась у входа.</strong></li>
-        <li><strong>Любая традиция становится традицией после второго повторения и одного драматичного упоминания.</strong></li>
-        <li><strong>Клуб может принимать новых участников только по приглашению и после проверки на устойчивость к фразе “короче”.</strong></li>
-      </ol>
-    </section>
+  <div class="breaking-line" aria-hidden="true">
+    <div>
+      &nbsp; Article 404: gossip not found, drama still cached · Секретность соблюдается примерно · Конституция может меняться после каждого ланча ·
+      Article 404: gossip not found, drama still cached · Секретность соблюдается примерно · Конституция может меняться после каждого ланча ·
+    </div>
+  </div>
 
-    <section class="page-shell section">
-      <div class="section-header">
-        <h2 class="section-title">Пасхалка</h2>
-        <span class="section-tag">не нажимай, если слаб</span>
-      </div>
-      <article class="section-card" id="easter-card">
-        <h3>Classified tea generator</h3>
-        <p id="easter-text">Кнопка выше ничего не делает. Именно это она и хочет, чтобы вы думали.</p>
-      </article>
-    </section>
+  <section class="page-shell section">
+    <div class="section-header">
+      <h2 class="section-title">Преамбула</h2>
+      <span class="section-tag">Мы, народ ланчей</span>
+    </div>
+    <article class="section-card">
+      <p>
+        Мы, участники клуба "Сплетни по понедельникам", находясь в здравом уме, переменном настроении и
+        приблизительной готовности к рабочей неделе, учреждаем настоящий документ для защиты права каждого
+        человека сказать: "подождите, там была предыстория".
+      </p>
+    </article>
+  </section>
 
-    <footer class="page-shell footer">
-      <p>Если эта страница была открыта во время работы — это research.</p>
-    </footer>
+  <section class="page-shell section">
+    <div class="section-header">
+      <h2 class="section-title">Основные статьи</h2>
+      <span class="section-tag">Drama governance</span>
+    </div>
+    <ol class="rules-list">
+      <li><strong>Каждая сплетня имеет право на контекст, даже если контекст длиннее самой сплетни.</strong></li>
+      <li><strong>Анонимный источник считается валидным, если хотя бы один участник сделал лицо "понятно".</strong></li>
+      <li><strong>Фраза "это не gossip, просто update" не освобождает историю от попадания в backlog.</strong></li>
+      <li><strong>Если участник отсутствовал, он имеет право на report, но не на полную реконструкцию интонаций.</strong></li>
+      <li><strong>Door Executive Officer несёт моральную ответственность за то, чтобы встреча не осталась у входа.</strong></li>
+      <li><strong>Любая традиция становится традицией после второго повторения и одного драматичного упоминания.</strong></li>
+      <li><strong>Клуб может принимать новых участников только по приглашению и после проверки на устойчивость к фразе "короче".</strong></li>
+    </ol>
+  </section>
 
-    <script is:inline>
-      const lines = [
-        'Секретный пункт 8: если все говорят “не будем долго”, встреча продлевается автоматически.',
-        'Архив драм обнаружен, но требует двух свидетелей и один кофе.',
-        'Комитет постановил: самое опасное слово понедельника — “кстати”.',
-        'Если ты читаешь это, ты назначен временным хранителем контекста.',
-        'Пасхалка раскрыта. Теперь сделай вид, что ничего не видел.',
-      ];
+  <section class="page-shell section">
+    <div class="section-header">
+      <h2 class="section-title">Пасхалка</h2>
+      <span class="section-tag">не нажимай, если слаб</span>
+    </div>
+    <article class="section-card" id="easter-card">
+      <h3>Classified tea generator</h3>
+      <p id="easter-text">Кнопка выше ничего не делает. Именно это она и хочет, чтобы вы думали.</p>
+    </article>
+  </section>
 
-      document.getElementById('easter-trigger').addEventListener('click', () => {
-        const text = lines[Math.floor(Math.random() * lines.length)];
-        document.getElementById('easter-text').textContent = text;
-        document.getElementById('easter-card').style.transform = `rotate(${Math.random() > 0.5 ? '-' : ''}1deg)`;
-      });
-    </script>
-  </body>
-</html>
+  <p slot="footer">Если эта страница была открыта во время работы — это research.</p>
+
+  <script is:inline>
+    const lines = [
+      'Секретный пункт 8: если все говорят "не будем долго", встреча продлевается автоматически.',
+      'Архив драм обнаружен, но требует двух свидетелей и один кофе.',
+      'Комитет постановил: самое опасное слово понедельника — "кстати".',
+      'Если ты читаешь это, ты назначен временным хранителем контекста.',
+      'Пасхалка раскрыта. Теперь сделай вид, что ничего не видел.',
+    ];
+
+    document.getElementById('easter-trigger').addEventListener('click', () => {
+      const text = lines[Math.floor(Math.random() * lines.length)];
+      document.getElementById('easter-text').textContent = text;
+      document.getElementById('easter-card').style.transform = `rotate(${Math.random() > 0.5 ? '-' : ''}1deg)`;
+    });
+  </script>
+</Base>
