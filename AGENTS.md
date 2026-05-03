@@ -81,7 +81,7 @@ Automatic deployment is configured in `.github/workflows/deploy.yml`:
 
 - trigger: push to `main` or manual `workflow_dispatch`;
 - setup: `oven-sh/setup-bun@v2` with Bun `1.3.6`;
-- build: `bun install --frozen-lockfile` and `bun run build`;
+- build: `bun install --frozen-lockfile --network-concurrency 4` and `bun run build`;
 - deploy target: `gh-pages` branch;
 - action: `peaceiris/actions-gh-pages@v4`;
 - `keep_files: true` is intentional so old hashed assets are not deleted.
