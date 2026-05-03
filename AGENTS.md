@@ -20,16 +20,18 @@ Repository:
 ## Commands
 
 ```bash
-npm install
-npm run dev
-npm run build
-npm run preview
-npm run deploy
+bun install
+bun run dev
+bun run build
+bun run preview
+bun run deploy
 ```
+
+This project uses Bun as the package manager. Keep `bun.lock` committed and do not reintroduce `package-lock.json` or `yarn.lock`.
 
 Deploys happen automatically on every push to `main` via `.github/workflows/deploy.yml`.
 
-`npm run deploy` can still be used for manual local deployment. It builds the site and publishes `dist/` to the `gh-pages` branch using the `gh-pages` CLI.
+`bun run deploy` can still be used for manual local deployment. It builds the site and publishes `dist/` to the `gh-pages` branch using the `gh-pages` CLI.
 
 ## Structure
 
@@ -78,12 +80,13 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 Automatic deployment is configured in `.github/workflows/deploy.yml`:
 
 - trigger: push to `main` or manual `workflow_dispatch`;
-- build: `yarn install --non-interactive --no-lockfile --ignore-engines` and `yarn build`;
+- setup: `oven-sh/setup-bun@v2` with Bun `1.3.6`;
+- build: `bun install --frozen-lockfile` and `bun run build`;
 - deploy target: `gh-pages` branch;
 - action: `peaceiris/actions-gh-pages@v4`;
 - `keep_files: true` is intentional so old hashed assets are not deleted.
 
-The local `deploy` script in `package.json` uses `gh-pages` with `--add` for the same reason. This reduces the chance that cached HTML points to a CSS file that no longer exists.
+The local `deploy` script in `package.json` uses `bunx gh-pages` with `--add` for the same reason. This reduces the chance that cached HTML points to a CSS file that no longer exists.
 
 Do not change these without a good reason:
 
@@ -92,7 +95,7 @@ Do not change these without a good reason:
 keep_files: true
 
 # local deploy
-npx gh-pages -d dist -b gh-pages -t --add
+bunx gh-pages -d dist -b gh-pages -t --add
 ```
 
 ## MVP interactivity
@@ -200,8 +203,8 @@ After DNS propagation, enable **Enforce HTTPS** in `meafmira/meafmira.github.io 
 
 If code or styles changed:
 
-1. Run `npm run build`.
-2. If changes should be published, run `npm run deploy`.
+1. Run `bun run build`.
+2. If changes should be published manually, run `bun run deploy`; otherwise push to `main` and wait for the GitHub Actions deploy.
 3. Check the live page with `curl` or a browser.
 
 Keep final responses concise, but clearly mention file paths and URLs when they matter.

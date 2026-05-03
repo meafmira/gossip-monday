@@ -24,11 +24,11 @@ Astro-прототип сайта маленького gossip-клуба.
 ## Команды
 
 ```bash
-npm install
-npm run dev
-npm run build
-npm run preview
-npm run deploy
+bun install
+bun run dev
+bun run build
+bun run preview
+bun run deploy
 ```
 
 ## Деплой
@@ -40,10 +40,12 @@ URL:
 - https://meafmira.github.io/gossip-monday/
 - http://meafmira.me/gossip-monday/
 
-Чтобы обновить опубликованную версию:
+Деплой происходит автоматически при push в `main` через GitHub Actions.
+
+Чтобы обновить опубликованную версию вручную локально:
 
 ```bash
-npm run deploy
+bun run deploy
 ```
 
 ## Где менять контент
