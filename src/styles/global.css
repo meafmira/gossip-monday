@@ -17,6 +17,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
@@ -158,6 +159,10 @@ button {
   margin-top: 20px;
 }
 
+.hero-grid > * {
+  min-width: 0;
+}
+
 .headline {
   margin: 0;
   font-family: 'Playfair Display', Georgia, serif;
@@ -165,10 +170,12 @@ button {
   line-height: 0.82;
   letter-spacing: -0.07em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .headline span {
   display: inline-block;
+  max-width: 100%;
   color: var(--hot);
   text-shadow: 4px 4px 0 var(--ink);
 }
@@ -332,8 +339,13 @@ button {
   justify-content: space-between;
   align-items: end;
   gap: 20px;
+  flex-wrap: wrap;
   margin-bottom: 16px;
   border-bottom: 4px solid var(--ink);
+}
+
+.section-header > * {
+  min-width: 0;
 }
 
 .section-title {
@@ -345,8 +357,10 @@ button {
 }
 
 .section-tag {
+  max-width: 100%;
   font-weight: 900;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
   background: var(--acid);
   border: 2px solid var(--ink);
   padding: 7px 10px;
@@ -729,6 +743,16 @@ textarea {
 @media (max-width: 560px) {
   .page-shell {
     width: min(100% - 22px, 1180px);
+  }
+
+  .headline {
+    font-size: clamp(42px, 15vw, 56px);
+    line-height: 0.9;
+    letter-spacing: -0.055em;
+  }
+
+  .headline span {
+    display: inline;
   }
 
   .member-grid,
