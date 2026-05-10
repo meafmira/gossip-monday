@@ -1,5 +1,4 @@
 ---
-import { members } from '../data/club';
 ---
 
 <section class="page-shell section" id="members">
@@ -7,18 +6,10 @@ import { members } from '../data/club';
     <h2 class="section-title">Участники</h2>
     <span class="section-tag">8 certified witnesses</span>
   </div>
-  <div class="member-grid">
-    {members.map((member) => (
-      <article class="member-card">
-        <div class="avatar" style={`background:${member.color}`}>{member.avatar}</div>
-        <h3>{member.name}</h3>
-        <span class="badge">{member.nickname}</span>
-        <p class="role">{member.role}</p>
-        <p>{member.funFact}</p>
-        <span class={`badge ${member.canLetIn ? 'status-yes' : 'status-unknown'}`}>
-          {member.canLetIn ? '🔑 может пустить в офис' : '🚪 guest mode'}
-        </span>
-      </article>
-    ))}
+  <div class="member-grid" id="member-grid">
+    <article class="section-card">
+      <h3>Участники загружаются</h3>
+      <p>Convex собирает certified witnesses и проверяет, у кого есть ключи от офиса.</p>
+    </article>
   </div>
 </section>

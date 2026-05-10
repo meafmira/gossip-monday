@@ -1,13 +1,13 @@
 # Сплетни по понедельникам
 
-Astro-прототип сайта маленького gossip-клуба.
+Astro-сайт маленького gossip-клуба с общими данными в Convex.
 
 ## Что есть в MVP
 
 - One-page сайт на русском с ru/en корпоративным жаргоном.
 - Стиль: office tabloid + corporate parody + meme details.
 - Countdown до встречи 04.05.2026.
-- RSVP board с обновлением статуса каждого участника.
+- RSVP board с синхронизацией между участниками.
 - Office access alert: показывает, кто может пустить людей в Booking.com office.
 - Gossip backlog с формой добавления темы.
 - Vacation intelligence с формой отсутствий.
@@ -15,11 +15,50 @@ Astro-прототип сайта маленького gossip-клуба.
 - Reports, gallery по событиям, правила/традиции, join form.
 - Секретная страница `/drama` с конституцией клуба и пасхалкой.
 
-## Важно про интерактивность
+## Данные и интерактивность
 
-Сейчас данные форм сохраняются в `localStorage` браузера. Это удобно для быстрого прототипа, но не синхронизируется между участниками.
+Shared state хранится в Convex, а не в `localStorage`:
 
-Следующий шаг для настоящей общей версии: подключить Supabase или другой backend.
+- RSVP;
+- gossip backlog;
+- vacation list;
+- join applications;
+- members/reports/gallery seed data.
+
+Convex project:
+
+- project slug: `gossip-monday`
+- dev deployment: `curious-shepherd-470`
+- production deployment: `amicable-poodle-60`
+- production URL: `https://amicable-poodle-60.convex.cloud`
+
+Frontend не импортирует Convex напрямую из компонентов или `src/scripts/app.ts`. Весь доступ идёт через слой `src/lib/api/`.
+
+Initial data лежит в `convex/seedData.ts` и загружается idempotent seed mutation:
+
+```bash
+bun run convex:seed
+```
+
+## Локальная разработка
+
+```bash
+bun install
+bunx convex dev
+```
+
+`convex dev` создаст `.env.local` с `CONVEX_URL`. Astro отдаёт в браузер только переменные с префиксом `PUBLIC_`, поэтому добавьте в `.env.local`:
+
+```bash
+PUBLIC_CONVEX_URL=<значение CONVEX_URL>
+```
+
+Затем в отдельных терминалах:
+
+```bash
+bun run convex:seed
+bun run dev
+```
 
 ## Команды
 
@@ -29,6 +68,9 @@ bun run dev
 bun run build
 bun run preview
 bun run deploy
+bun run convex:dev
+bun run convex:seed
+bun run convex:deploy
 ```
 
 ## Деплой
@@ -42,15 +84,24 @@ URL:
 
 Деплой происходит автоматически при push в `main` через GitHub Actions.
 
+GitHub Actions должен иметь secret:
+
+```text
+CONVEX_DEPLOY_KEY
+```
+
+Secret `CONVEX_DEPLOY_KEY` is configured in GitHub for the production deployment. Workflow деплоит Convex, собирает Astro с production `PUBLIC_CONVEX_URL`, запускает seed и публикует `dist/` в `gh-pages`.
+
 Чтобы обновить опубликованную версию вручную локально:
 
 ```bash
 bun run deploy
 ```
 
-## Где менять контент
+## Где менять код и контент
 
-- Участники, backlog, reports, gallery: `src/data/club.ts`
+- Convex schema/functions/seed data: `convex/`
+- Frontend API abstraction: `src/lib/api/`
 - Главная страница: `src/pages/index.astro`
 - Секретная страница: `src/pages/drama.astro`
 - Стили: `src/styles/global.css`

@@ -25,6 +25,9 @@ bun run dev
 bun run build
 bun run preview
 bun run deploy
+bun run convex:dev
+bun run convex:seed
+bun run convex:deploy
 ```
 
 This project uses Bun as the package manager. Keep `bun.lock` committed and do not reintroduce `package-lock.json` or `yarn.lock`.
@@ -37,7 +40,9 @@ Deploys happen automatically on every push to `main` via `.github/workflows/depl
 
 - `src/pages/index.astro` — main one-page site.
 - `src/pages/drama.astro` — secret `/drama` page with the club constitution and easter egg.
-- `src/data/club.ts` — members, backlog items, reports, gallery events.
+- `convex/` — Convex schema, backend functions, generated types, and seed data.
+- `src/lib/api/` — frontend API abstraction layer. UI code must use this layer instead of importing Convex directly.
+- `src/data/club.ts` — legacy/static content reference; shared live data is seeded from `convex/seedData.ts`.
 - `src/styles/global.css` — all global styles.
 - `public/favicon.svg` — favicon.
 - `public/CNAME` — GitHub Pages custom domain (`goss.im`).
@@ -82,7 +87,7 @@ Automatic deployment is configured in `.github/workflows/deploy.yml`:
 
 - trigger: push to `main` or manual `workflow_dispatch`;
 - setup: Node `24` for Astro compatibility, then `oven-sh/setup-bun@v2` with Bun `1.3.6`;
-- build: `bun install --frozen-lockfile --network-concurrency 1 --registry https://registry.npmjs.org` and `bun run build`;
+- build/backend deploy: `bun install --frozen-lockfile --network-concurrency 1 --registry https://registry.npmjs.org`, then `bunx convex deploy --cmd "bun run build" --cmd-url-env-var-name PUBLIC_CONVEX_URL`;
 - deploy target: `gh-pages` branch;
 - action: `peaceiris/actions-gh-pages@v4`;
 - `keep_files: true` is intentional so old hashed assets are not deleted.
@@ -99,22 +104,38 @@ keep_files: true
 bunx gh-pages -d dist -b gh-pages -t --add
 ```
 
-## MVP interactivity
+## Shared interactivity / Convex
 
-Current forms and interactive lists use browser `localStorage`:
+Shared features are backed by Convex, not browser `localStorage`:
 
 - RSVP board;
+- office access alert;
 - gossip backlog;
-- vacation list.
+- vacation list;
+- join applications;
+- seeded members, reports, and gallery events.
 
-This means data is stored only in the current user’s browser and is **not synchronized between members**.
+Convex project details:
 
-The logical next step for a real shared version is Supabase:
+- project slug: `gossip-monday`;
+- dev deployment: `curious-shepherd-470`;
+- production deployment: `amicable-poodle-60`;
+- production URL: `https://amicable-poodle-60.convex.cloud`;
+- GitHub Actions secret `CONVEX_DEPLOY_KEY` is configured for production deploys.
 
-- shared RSVP;
-- shared gossip backlog;
-- vacation calendar;
-- future auth via magic link / Google / Apple.
+Frontend code must not import `convex/*` directly from components or scripts. Always go through the abstraction layer in `src/lib/api/` (for example `createGossipApi()` from `src/lib/api/gossip.ts`). Direct Convex imports are allowed only inside `convex/` backend files and the `src/lib/api/` implementation.
+
+Initial/stub data lives in `convex/seedData.ts` and is loaded with:
+
+```bash
+bun run convex:seed
+```
+
+The seed mutation is idempotent: it upserts seeded content and does not wipe user-created backlog items, vacations, RSVP updates, or join applications.
+
+Local development requires `PUBLIC_CONVEX_URL` because Astro only exposes `PUBLIC_` variables to browser code. Run `bunx convex dev`, then copy `CONVEX_URL` from `.env.local` into `PUBLIC_CONVEX_URL`.
+
+Production GitHub Actions deployment requires a `CONVEX_DEPLOY_KEY` secret. `convex deploy --cmd ... --cmd-url-env-var-name PUBLIC_CONVEX_URL` injects the production Convex URL into the Astro build.
 
 ## Content agreements
 
@@ -153,7 +174,7 @@ Members:
 - Мария Замжитская;
 - Надин.
 
-Member cards use joke roles and placeholder initial-based avatars. In the future, real photos can be placed in `public/` and referenced from `src/data/club.ts`.
+Member cards use joke roles and placeholder initial-based avatars. In the future, real photos can be placed in `public/` and referenced from Convex-backed member records / seed data.
 
 ## Privacy
 
@@ -202,7 +223,8 @@ Optional AAAA records:
 If code or styles changed:
 
 1. Run `bun run build`.
-2. If changes should be published manually, run `bun run deploy`; otherwise push to `main` and wait for the GitHub Actions deploy.
-3. Check the live page with `curl` or a browser.
+2. If Convex schema/functions changed, run `bun run convex:codegen` and ensure generated files are committed.
+3. If changes should be published manually, deploy Convex first with `bun run convex:deploy`, then run `bun run deploy`; otherwise push to `main` and wait for the GitHub Actions deploy.
+4. Check the live page with `curl` or a browser.
 
 Keep final responses concise, but clearly mention file paths and URLs when they matter.

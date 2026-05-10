@@ -32,8 +32,15 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile --network-concurrency 1 --registry https://registry.npmjs.org
 
-      - name: Build
-        run: bun run build
+      - name: Deploy Convex and build
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+        run: bunx convex deploy --cmd "bun run build" --cmd-url-env-var-name PUBLIC_CONVEX_URL
+
+      - name: Seed Convex initial data
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+        run: bunx convex run --prod seed:seedInitialData
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4

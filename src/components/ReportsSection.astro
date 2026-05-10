@@ -1,5 +1,4 @@
 ---
-import { reports } from '../data/club';
 ---
 
 <section class="page-shell section" id="reports">
@@ -7,16 +6,10 @@ import { reports } from '../data/club';
     <h2 class="section-title">Reports</h2>
     <span class="section-tag">Для тех, кто отсутствовал</span>
   </div>
-  <div class="report-list">
-    {reports.map((report) => (
-      <article class="report-item">
-        <h3>{report.title}</h3>
-        <span class="badge">{report.date}</span>
-        <p>{report.summary}</p>
-        <ul>
-          {report.outcomes.map((outcome) => <li>{outcome}</li>)}
-        </ul>
-      </article>
-    ))}
+  <div class="report-list" id="report-list">
+    <article class="section-card">
+      <h3>Reports загружаются</h3>
+      <p>Convex достаёт протоколы из архива неполного знания.</p>
+    </article>
   </div>
 </section>

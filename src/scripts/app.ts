@@ -1,47 +1,7 @@
-import type { Member } from '../data/club';
+import { createGossipApi, type BacklogItem, type GalleryEvent, type Member, type PageData, type Report, type RsvpEntry, type VacationItem } from '../lib/api/gossip';
 
-interface RsvpEntry {
-  status: 'yes' | 'no' | 'maybe' | 'unknown';
-  comment: string;
-  canLetIn: boolean;
-}
-
-interface BacklogItem {
-  id: string;
-  title: string;
-  author: string;
-  anonymous: boolean;
-}
-
-interface VacationItem {
-  id: string;
-  member: string;
-  from: string;
-  to: string;
-  reason: string;
-}
-
-interface JoinApplication {
-  id: string;
-  name: string;
-  invitedBy: string;
-  reason: string;
-  date: string;
-}
-
-const members: Member[] = JSON.parse(
-  document.getElementById('members-data')!.textContent!
-);
-const initialBacklog: BacklogItem[] = JSON.parse(
-  document.getElementById('backlog-data')!.textContent!
-);
-
-const storage = {
-  rsvp: 'gossip-monday:rsvp',
-  backlog: 'gossip-monday:backlog',
-  vacations: 'gossip-monday:vacations',
-  applications: 'gossip-monday:applications',
-};
+const gossipApi = createGossipApi();
+let currentData: PageData | null = null;
 
 const statusCopy: Record<string, [string, string]> = {
   yes: ['Приду', 'status-yes'],
@@ -50,28 +10,11 @@ const statusCopy: Record<string, [string, string]> = {
   unknown: ['Не отметился', 'status-unknown'],
 };
 
-// Track which element opened a modal so we can return focus
+// Track which element opened a modal so we can return focus.
 let lastModalTrigger: HTMLElement | null = null;
 
-function getJson<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function setJson(key: string, value: unknown): void {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Storage full or blocked — silently ignore
-  }
-}
-
-function memberById(id: string): Member | undefined {
-  return members.find((m) => m.id === id);
+function memberBySlug(slug: string): Member | undefined {
+  return currentData?.members.find((member) => member.slug === slug);
 }
 
 function el(tag: string, attrs?: Record<string, string>, children?: (Node | string)[]): HTMLElement {
@@ -98,37 +41,71 @@ function text(content: string): Text {
 }
 
 function formatDate(value: string): string {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+
   return new Intl.DateTimeFormat('ru-RU', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  }).format(new Date(value + 'T00:00:00'));
+  }).format(date);
 }
 
-function initRsvp(): Record<string, RsvpEntry> {
-  const existing = getJson<Record<string, RsvpEntry> | null>(storage.rsvp, null);
-  if (existing) return existing;
-  const defaults: Record<string, RsvpEntry> = Object.fromEntries(
-    members.map((m) => [
-      m.id,
-      { status: 'unknown' as const, comment: '', canLetIn: m.canLetIn },
-    ])
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function renderNotice(target: HTMLElement, title: string, body: string): void {
+  target.replaceChildren(
+    el('article', { className: 'section-card' }, [
+      el('h3', {}, [title]),
+      el('p', {}, [body]),
+    ]),
   );
-  setJson(storage.rsvp, defaults);
-  return defaults;
 }
 
-function renderRsvp(): void {
-  const data = initRsvp();
+function renderMemberOptions(data: PageData): void {
+  const selects = document.querySelectorAll<HTMLSelectElement>(
+    '#rsvp-form select[name="member"], #vacation-form select[name="member"]',
+  );
+
+  selects.forEach((select) => {
+    const selectedValue = select.value;
+    select.replaceChildren();
+
+    for (const member of data.members) {
+      const option = document.createElement('option');
+      option.value = member.slug;
+      option.textContent = member.name;
+      select.append(option);
+    }
+
+    if (data.members.some((member) => member.slug === selectedValue)) {
+      select.value = selectedValue;
+    }
+  });
+}
+
+function renderRsvp(data: PageData): void {
   const board = document.getElementById('rsvp-board')!;
   board.replaceChildren();
 
-  for (const member of members) {
-    const item = data[member.id] || { status: 'unknown', comment: '', canLetIn: member.canLetIn };
+  if (!data.members.length) {
+    renderNotice(board, 'Участники не найдены', 'Convex подключён, но initial seed ещё не запущен.');
+  }
+
+  for (const member of data.members) {
+    const item: RsvpEntry = data.rsvps[member.slug] || {
+      id: null,
+      memberSlug: member.slug,
+      status: 'unknown',
+      comment: '',
+      canLetIn: member.canLetIn,
+      updatedAt: 0,
+    };
     const [label, cls] = statusCopy[item.status] || statusCopy.unknown;
 
     const avatar = el('div', { className: 'avatar', style: `background:${member.color}` }, [member.avatar]);
-
     const nameEl = el('strong', {}, [member.name]);
     const statusPill = el('span', { className: `status-pill ${cls}` }, [label]);
     const infoChildren: (Node | string)[] = [nameEl, document.createElement('br'), statusPill];
@@ -137,40 +114,43 @@ function renderRsvp(): void {
       infoChildren.push(el('span', { className: 'status-pill status-yes' }, ['🔑 впускает']));
     }
     if (item.comment) {
-      const commentEl = el('p', { style: 'margin:8px 0 0;color:#555' }, [`"${item.comment}"`]);
-      infoChildren.push(commentEl);
+      infoChildren.push(el('p', { style: 'margin:8px 0 0;color:#555' }, [`"${item.comment}"`]));
     }
-    const info = el('div', {}, infoChildren);
 
-    const btn = el('button', { className: 'btn ghost', 'data-edit-rsvp': member.id }, ['Update']);
-    const row = el('div', { className: 'rsvp-row' }, [avatar, info, btn]);
-    board.append(row);
+    const btn = el('button', { className: 'btn ghost', 'data-edit-rsvp': member.slug }, ['Update']);
+    board.append(el('div', { className: 'rsvp-row' }, [avatar, el('div', {}, infoChildren), btn]));
   }
 
-  // Update access alert
-  const activeDoorPeople = members.filter(
-    (m) => data[m.id]?.canLetIn && data[m.id]?.status !== 'no'
-  );
+  const activeDoorPeople = data.members.filter((member) => {
+    const rsvp = data.rsvps[member.slug];
+    return (rsvp?.canLetIn ?? member.canLetIn) && (rsvp?.status ?? 'unknown') !== 'no';
+  });
   const alertEl = document.getElementById('access-alert')!;
   alertEl.replaceChildren();
 
   if (activeDoorPeople.length) {
     alertEl.className = 'alert ok';
-    const title = el('strong', {}, ['Office access: под контролем']);
-    const body = text(`Дежурные шаманы входной двери: ${activeDoorPeople.map((m) => m.name).join(', ')}.`);
-    alertEl.append(title, body);
+    alertEl.append(
+      el('strong', {}, ['Office access: под контролем']),
+      text(`Дежурные шаманы входной двери: ${activeDoorPeople.map((member) => member.name).join(', ')}.`),
+    );
   } else {
     alertEl.className = 'alert';
-    const title = el('strong', {}, ['КРАСНЫЙ УРОВЕНЬ ДРАМЫ']);
-    const body = text('Ни один авторизованный офисный шаман не подтвердил возможность открыть дверь. Встреча рискует стать уличным стендапом у входа.');
-    alertEl.append(title, body);
+    alertEl.append(
+      el('strong', {}, ['КРАСНЫЙ УРОВЕНЬ ДРАМЫ']),
+      text('Ни один авторизованный офисный шаман не подтвердил возможность открыть дверь. Встреча рискует стать уличным стендапом у входа.'),
+    );
   }
 }
 
-function renderBacklog(): void {
-  const backlog = getJson<BacklogItem[]>(storage.backlog, initialBacklog);
+function renderBacklog(backlog: BacklogItem[]): void {
   const list = document.getElementById('backlog-list')!;
   list.replaceChildren();
+
+  if (!backlog.length) {
+    renderNotice(list, 'Backlog пуст', 'Подозрительно тихо. Добавьте первую синхронизированную сплетню.');
+    return;
+  }
 
   backlog.forEach((item, index) => {
     const article = el('article', { className: 'backlog-item' });
@@ -187,25 +167,20 @@ function renderBacklog(): void {
   });
 }
 
-function renderVacations(): void {
-  const vacations = getJson<VacationItem[]>(storage.vacations, [
-    { id: 'v1', member: 'liza', from: '2026-05-11', to: '2026-05-13', reason: 'ментально отсутствую' },
-    { id: 'v2', member: 'dimi', from: '2026-05-18', to: '2026-05-22', reason: 'отпуск' },
-  ]);
-  setJson(storage.vacations, vacations);
+function renderVacations(vacations: VacationItem[]): void {
   const list = document.getElementById('vacation-list')!;
   list.replaceChildren();
 
   if (!vacations.length) {
     const article = el('article', { className: 'vacation-item' });
     article.append(el('strong', {}, ['Пока все в сюжете.']));
-    article.append(el('p', {}, ['Подозрительно, но зафиксировано.']));
+    article.append(el('p', {}, ['Подозрительно, но зафиксировано в Convex.']));
     list.append(article);
     return;
   }
 
   for (const item of vacations) {
-    const member = memberById(item.member);
+    const member = memberBySlug(item.memberSlug);
     const article = el('article', { className: 'vacation-item' });
     article.append(el('span', { className: 'badge' }, [item.reason]));
     article.append(el('h3', {}, [member ? member.name : 'Неизвестный участник']));
@@ -218,12 +193,129 @@ function renderVacations(): void {
   }
 }
 
+function renderMembers(members: Member[]): void {
+  const grid = document.getElementById('member-grid');
+  if (!grid) return;
+  grid.replaceChildren();
+
+  if (!members.length) {
+    renderNotice(grid, 'Участники не загружены', 'Запустите seedInitialData в Convex.');
+    return;
+  }
+
+  for (const member of members) {
+    const article = el('article', { className: 'member-card' }, [
+      el('div', { className: 'avatar', style: `background:${member.color}` }, [member.avatar]),
+      el('h3', {}, [member.name]),
+      el('span', { className: 'badge' }, [member.nickname]),
+      el('p', { className: 'role' }, [member.role]),
+      el('p', {}, [member.funFact]),
+      el('span', { className: `badge ${member.canLetIn ? 'status-yes' : 'status-unknown'}` }, [
+        member.canLetIn ? '🔑 может пустить в офис' : '🚪 guest mode',
+      ]),
+    ]);
+    grid.append(article);
+  }
+}
+
+function renderReports(reports: Report[]): void {
+  const list = document.getElementById('report-list');
+  if (!list) return;
+  list.replaceChildren();
+
+  if (!reports.length) {
+    renderNotice(list, 'Reports ещё нет', 'Архив заседаний ждёт первого официального протокола.');
+    return;
+  }
+
+  for (const report of reports) {
+    const outcomes = el('ul');
+    for (const outcome of report.outcomes) {
+      outcomes.append(el('li', {}, [outcome]));
+    }
+
+    list.append(
+      el('article', { className: 'report-item' }, [
+        el('h3', {}, [report.title]),
+        el('span', { className: 'badge' }, [report.date]),
+        el('p', {}, [report.summary]),
+        outcomes,
+      ]),
+    );
+  }
+}
+
+function renderGallery(events: GalleryEvent[]): void {
+  const grid = document.getElementById('gallery-events');
+  if (!grid) return;
+  grid.replaceChildren();
+
+  if (!events.length) {
+    renderNotice(grid, 'Фото-доказательства отсутствуют', 'Комитет временно работает без визуальных улик.');
+    return;
+  }
+
+  for (const event of events) {
+    const photoGrid = el('div', { className: 'gallery-grid', style: 'margin-top: 14px;' });
+    for (const photo of event.photos) {
+      photoGrid.append(
+        el('button', { className: 'photo-tile', 'data-lightbox': photo, 'aria-label': `Открыть ${photo}` }, [photo]),
+      );
+    }
+
+    grid.append(
+      el('article', { className: 'section-card' }, [
+        el('h3', {}, [event.title]),
+        el('span', { className: 'badge' }, [event.date]),
+        photoGrid,
+      ]),
+    );
+  }
+}
+
+function renderPageData(data: PageData): void {
+  currentData = data;
+  renderMemberOptions(data);
+  renderRsvp(data);
+  renderBacklog(data.backlogItems);
+  renderVacations(data.vacations);
+  renderMembers(data.members);
+  renderReports(data.reports);
+  renderGallery(data.galleryEvents);
+}
+
+function renderUnavailable(error: Error): void {
+  const message = error.message;
+  const accessAlert = document.getElementById('access-alert');
+  if (accessAlert) {
+    accessAlert.className = 'alert';
+    accessAlert.replaceChildren(
+      el('strong', {}, ['Convex недоступен']),
+      text(` ${message}`),
+    );
+  }
+
+  const targets = [
+    ['rsvp-board', 'RSVP не загружен'],
+    ['backlog-list', 'Backlog не загружен'],
+    ['vacation-list', 'Отпуска не загружены'],
+    ['member-grid', 'Участники не загружены'],
+    ['report-list', 'Reports не загружены'],
+    ['gallery-events', 'Gallery не загружена'],
+  ] as const;
+
+  for (const [id, title] of targets) {
+    const target = document.getElementById(id);
+    if (target) renderNotice(target, title, message);
+  }
+}
+
 function setupCountdown(): void {
   const root = document.querySelector<HTMLElement>('[data-countdown]');
   if (!root) return;
   const target = new Date(root.dataset.countdown!).getTime();
 
-  // Check if it's the same calendar day
+  // Check if it's the same calendar day.
   const targetDate = new Date(root.dataset.countdown!);
   const isToday = (now: Date) =>
     now.getFullYear() === targetDate.getFullYear() &&
@@ -235,18 +327,12 @@ function setupCountdown(): void {
     const distance = target - now.getTime();
 
     if (isToday(now)) {
-      // Meeting is today — show special state
-      root.replaceChildren();
-      const todayEl = el('div', { className: 'countdown-today' }, ['🎉 Сегодня!']);
-      root.append(todayEl);
+      root.replaceChildren(el('div', { className: 'countdown-today' }, ['🎉 Сегодня!']));
       return;
     }
 
     if (distance < 0) {
-      // Meeting already passed
-      root.replaceChildren();
-      const pastEl = el('div', { className: 'countdown-past' }, ['Уже было — ждём следующую встречу']);
-      root.append(pastEl);
+      root.replaceChildren(el('div', { className: 'countdown-past' }, ['Уже было — ждём следующую встречу']));
       return;
     }
 
@@ -274,26 +360,55 @@ function openModal(id: string, trigger?: HTMLElement | null): void {
 
 function closeModal(modal: HTMLDialogElement): void {
   modal.close();
-  // Return focus to the element that opened the modal
+  // Return focus to the element that opened the modal.
   if (lastModalTrigger) {
     lastModalTrigger.focus();
     lastModalTrigger = null;
   }
 }
 
-// Close modals on backdrop click
+async function withFormLock(form: HTMLFormElement, action: () => Promise<void>): Promise<void> {
+  const controls = Array.from(
+    form.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>(
+      'button, input, select, textarea',
+    ),
+  );
+
+  controls.forEach((control) => {
+    control.disabled = true;
+  });
+
+  try {
+    await action();
+  } catch (error) {
+    alert(errorMessage(error));
+  } finally {
+    controls.forEach((control) => {
+      control.disabled = false;
+    });
+  }
+}
+
+// Close modals on backdrop click.
 document.querySelectorAll<HTMLDialogElement>('dialog.modal').forEach((dialog) => {
   dialog.addEventListener('click', (event) => {
-    // Click on the dialog element itself (the backdrop) but not on children
+    // Click on the dialog element itself (the backdrop) but not on children.
     if (event.target === dialog) {
       closeModal(dialog);
     }
   });
 });
 
-// Event delegation
+// Event delegation.
 document.addEventListener('click', (event) => {
   const target = event.target as HTMLElement;
+
+  const closeButton = target.closest<HTMLElement>('[data-close-modal]');
+  if (closeButton) {
+    const dialog = closeButton.closest<HTMLDialogElement>('dialog');
+    if (dialog) closeModal(dialog);
+    return;
+  }
 
   const modalButton = target.closest<HTMLElement>('[data-open-modal]');
   if (modalButton) {
@@ -302,13 +417,24 @@ document.addEventListener('click', (event) => {
 
   const editButton = target.closest<HTMLElement>('[data-edit-rsvp]');
   if (editButton) {
-    const data = initRsvp();
+    if (!currentData) {
+      alert('Convex данные ещё загружаются. Подождите драматичную секунду.');
+      return;
+    }
+
     const form = document.getElementById('rsvp-form') as HTMLFormElement;
-    const memberId = editButton.dataset.editRsvp!;
-    (form.elements.namedItem('member') as HTMLSelectElement).value = memberId;
-    (form.elements.namedItem('status') as HTMLSelectElement).value = data[memberId]?.status || 'unknown';
-    (form.elements.namedItem('canLetIn') as HTMLInputElement).checked = Boolean(data[memberId]?.canLetIn);
-    (form.elements.namedItem('comment') as HTMLTextAreaElement).value = data[memberId]?.comment || '';
+    const memberSlug = editButton.dataset.editRsvp!;
+    const member = memberBySlug(memberSlug);
+    const data = currentData.rsvps[memberSlug] || {
+      status: 'unknown',
+      canLetIn: member?.canLetIn ?? false,
+      comment: '',
+    };
+
+    (form.elements.namedItem('member') as HTMLSelectElement).value = memberSlug;
+    (form.elements.namedItem('status') as HTMLSelectElement).value = data.status;
+    (form.elements.namedItem('canLetIn') as HTMLInputElement).checked = Boolean(data.canLetIn);
+    (form.elements.namedItem('comment') as HTMLTextAreaElement).value = data.comment || '';
     openModal('rsvp-modal', editButton);
   }
 
@@ -323,90 +449,97 @@ document.addEventListener('click', (event) => {
   }
 });
 
-// RSVP form
+// RSVP form.
 document.getElementById('rsvp-form')!.addEventListener('submit', (event) => {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
-  const data = initRsvp();
-  const memberId = (form.elements.namedItem('member') as HTMLSelectElement).value;
-  data[memberId] = {
-    status: (form.elements.namedItem('status') as HTMLSelectElement).value as RsvpEntry['status'],
-    canLetIn: (form.elements.namedItem('canLetIn') as HTMLInputElement).checked,
-    comment: (form.elements.namedItem('comment') as HTMLTextAreaElement).value.trim(),
-  };
-  setJson(storage.rsvp, data);
-  renderRsvp();
-  closeModal(document.getElementById('rsvp-modal') as HTMLDialogElement);
+
+  void withFormLock(form, async () => {
+    await gossipApi.updateRsvp({
+      memberSlug: (form.elements.namedItem('member') as HTMLSelectElement).value,
+      status: (form.elements.namedItem('status') as HTMLSelectElement).value as RsvpEntry['status'],
+      canLetIn: (form.elements.namedItem('canLetIn') as HTMLInputElement).checked,
+      comment: (form.elements.namedItem('comment') as HTMLTextAreaElement).value,
+    });
+    closeModal(document.getElementById('rsvp-modal') as HTMLDialogElement);
+  });
 });
 
-// Gossip form
+// Gossip form.
 document.getElementById('gossip-form')!.addEventListener('submit', (event) => {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
-  const backlog = getJson<BacklogItem[]>(storage.backlog, initialBacklog);
-  backlog.unshift({
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    title: (form.elements.namedItem('title') as HTMLInputElement).value.trim(),
-    author: (form.elements.namedItem('author') as HTMLInputElement).value.trim() || 'Редакция',
-    anonymous: (form.elements.namedItem('anonymous') as HTMLInputElement).checked,
+
+  void withFormLock(form, async () => {
+    await gossipApi.addBacklogItem({
+      title: (form.elements.namedItem('title') as HTMLInputElement).value,
+      author: (form.elements.namedItem('author') as HTMLInputElement).value,
+      anonymous: (form.elements.namedItem('anonymous') as HTMLInputElement).checked,
+    });
+    form.reset();
+    closeModal(document.getElementById('gossip-modal') as HTMLDialogElement);
   });
-  setJson(storage.backlog, backlog);
-  renderBacklog();
-  form.reset();
-  closeModal(document.getElementById('gossip-modal') as HTMLDialogElement);
 });
 
-// Vacation form
+// Vacation form.
 document.getElementById('vacation-form')!.addEventListener('submit', (event) => {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
-  const vacations = getJson<VacationItem[]>(storage.vacations, []);
-  vacations.unshift({
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    member: (form.elements.namedItem('member') as HTMLSelectElement).value,
-    from: (form.elements.namedItem('from') as HTMLInputElement).value,
-    to: (form.elements.namedItem('to') as HTMLInputElement).value,
-    reason: (form.elements.namedItem('reason') as HTMLSelectElement).value,
+
+  void withFormLock(form, async () => {
+    await gossipApi.addVacation({
+      memberSlug: (form.elements.namedItem('member') as HTMLSelectElement).value,
+      from: (form.elements.namedItem('from') as HTMLInputElement).value,
+      to: (form.elements.namedItem('to') as HTMLInputElement).value,
+      reason: (form.elements.namedItem('reason') as HTMLSelectElement).value,
+    });
+    form.reset();
+    closeModal(document.getElementById('vacation-modal') as HTMLDialogElement);
   });
-  setJson(storage.vacations, vacations);
-  renderVacations();
-  form.reset();
-  closeModal(document.getElementById('vacation-modal') as HTMLDialogElement);
 });
 
-// Join form — save to localStorage and show inline confirmation
+// Join form — save shared applications in Convex and show inline confirmation.
 const joinForm = document.querySelector('#join-modal form') as HTMLFormElement;
+const joinModal = document.getElementById('join-modal') as HTMLDialogElement;
 const joinFormOriginalChildren = Array.from(joinForm.children).map((child) => child.cloneNode(true));
+
+function restoreJoinForm(): void {
+  joinForm.replaceChildren(...joinFormOriginalChildren.map((child) => child.cloneNode(true)));
+  joinForm.reset();
+}
+
+joinModal.addEventListener('close', () => {
+  if (!joinForm.elements.namedItem('name')) {
+    restoreJoinForm();
+  }
+});
 
 joinForm.addEventListener('submit', (event) => {
   event.preventDefault();
-  const applications = getJson<JoinApplication[]>(storage.applications, []);
-  applications.unshift({
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    name: (joinForm.elements.namedItem('name') as HTMLInputElement).value.trim(),
-    invitedBy: (joinForm.elements.namedItem('invitedBy') as HTMLInputElement).value.trim(),
-    reason: (joinForm.elements.namedItem('reason') as HTMLTextAreaElement).value.trim(),
-    date: new Date().toISOString(),
-  });
-  setJson(storage.applications, applications);
 
-  // Replace form content with confirmation
-  joinForm.replaceChildren();
-  const heading = el('h2', { style: 'font-family:Playfair Display,Georgia,serif;font-size:34px;letter-spacing:-0.045em;margin:0 0 14px' }, ['✅ Заявка отправлена']);
-  const msg = el('p', { style: 'line-height:1.55;color:#333' }, [
-    'Ваша заявка зафиксирована в локальном архиве. В реальном MVP она улетит в Supabase, а пока — просто знайте, что мы знаем, что вы хотите.'
-  ]);
-  const closeBtn = el('button', { className: 'btn hot', type: 'button', style: 'margin-top:18px' }, ['Закрыть']);
-  closeBtn.addEventListener('click', () => {
-    closeModal(document.getElementById('join-modal') as HTMLDialogElement);
-    // Restore form for next time
-    joinForm.replaceChildren(...joinFormOriginalChildren.map((c) => c.cloneNode(true)));
+  void withFormLock(joinForm, async () => {
+    await gossipApi.addJoinApplication({
+      name: (joinForm.elements.namedItem('name') as HTMLInputElement).value,
+      invitedBy: (joinForm.elements.namedItem('invitedBy') as HTMLInputElement).value,
+      reason: (joinForm.elements.namedItem('reason') as HTMLTextAreaElement).value,
+    });
+
+    joinForm.replaceChildren();
+    const heading = el('h2', { style: 'font-family:Playfair Display,Georgia,serif;font-size:34px;letter-spacing:-0.045em;margin:0 0 14px' }, ['✅ Заявка отправлена']);
+    const msg = el('p', { style: 'line-height:1.55;color:#333' }, [
+      'Ваша заявка зафиксирована в общем Convex-архиве. Комитет теперь не сможет притвориться, что ничего не видел.',
+    ]);
+    const closeBtn = el('button', { className: 'btn hot', type: 'button', style: 'margin-top:18px' }, ['Закрыть']);
+    closeBtn.addEventListener('click', () => {
+      closeModal(joinModal);
+    });
+    joinForm.append(heading, msg, closeBtn);
   });
-  joinForm.append(heading, msg, closeBtn);
 });
 
-// Init
+// Init.
 setupCountdown();
-renderRsvp();
-renderBacklog();
-renderVacations();
+gossipApi.subscribePageData(renderPageData, renderUnavailable);
+window.addEventListener('beforeunload', () => {
+  void gossipApi.close();
+});

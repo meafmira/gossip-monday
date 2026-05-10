@@ -1,20 +1,20 @@
 ---
-import { members } from '../data/club';
 ---
 
 <dialog class="modal" id="rsvp-modal">
   <form class="modal-card form-grid" id="rsvp-form" method="dialog">
     <div class="modal-head">
       <h2>RSVP на ланч</h2>
-      <button class="close-btn" value="cancel" aria-label="Закрыть">×</button>
+      <button class="close-btn" type="button" data-close-modal aria-label="Закрыть">×</button>
     </div>
     <label>Кто ты?
       <select name="member" required>
-        {members.map((member) => <option value={member.id}>{member.name}</option>)}
+        <option value="">Загрузка участников…</option>
       </select>
     </label>
     <label>Статус
       <select name="status" required>
+        <option value="unknown">Не отметился</option>
         <option value="yes">Приду</option>
         <option value="maybe">Возможно, если переживу понедельник</option>
         <option value="no">Не приду</option>
@@ -32,7 +32,7 @@ import { members } from '../data/club';
   <form class="modal-card form-grid" id="gossip-form" method="dialog">
     <div class="modal-head">
       <h2>Submit gossip</h2>
-      <button class="close-btn" value="cancel" aria-label="Закрыть">×</button>
+      <button class="close-btn" type="button" data-close-modal aria-label="Закрыть">×</button>
     </div>
     <label>Заголовок
       <input name="title" required placeholder="Та самая история, которую надо обсудить лично" />
@@ -49,11 +49,11 @@ import { members } from '../data/club';
   <form class="modal-card form-grid" id="vacation-form" method="dialog">
     <div class="modal-head">
       <h2>Добавить отсутствие</h2>
-      <button class="close-btn" value="cancel" aria-label="Закрыть">×</button>
+      <button class="close-btn" type="button" data-close-modal aria-label="Закрыть">×</button>
     </div>
     <label>Участник
       <select name="member" required>
-        {members.map((member) => <option value={member.id}>{member.name}</option>)}
+        <option value="">Загрузка участников…</option>
       </select>
     </label>
     <div class="grid-2">
@@ -82,7 +82,7 @@ import { members } from '../data/club';
   <form class="modal-card form-grid" method="dialog">
     <div class="modal-head">
       <h2>Application form</h2>
-      <button class="close-btn" value="cancel" aria-label="Закрыть">×</button>
+      <button class="close-btn" type="button" data-close-modal aria-label="Закрыть">×</button>
     </div>
     <label>Имя
       <input name="name" required placeholder="Как вас представлять комитету" />

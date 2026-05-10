@@ -1,7 +1,4 @@
 ---
-import { members } from '../data/club';
-
-const accessMembers = members.filter((m) => m.canLetIn);
 ---
 
 <section class="page-shell section" id="meeting">
@@ -25,10 +22,15 @@ const accessMembers = members.filter((m) => m.canLetIn);
 
     <article class="section-card">
       <div id="access-alert" class="alert ok">
-        <strong>Office access: под контролем</strong>
-        Дежурные шаманы входной двери: {accessMembers.map((m) => m.name).join(', ')}.
+        <strong>Office access: синхронизация</strong>
+        Загружаем дежурных шаманов входной двери из Convex…
       </div>
-      <div class="rsvp-board" id="rsvp-board" style="margin-top: 18px;"></div>
+      <div class="rsvp-board" id="rsvp-board" style="margin-top: 18px;">
+        <article class="section-card">
+          <h3>RSVP загружается</h3>
+          <p>Convex ищет свидетелей, статусы и того, кто откроет дверь.</p>
+        </article>
+      </div>
     </article>
   </div>
 </section>
