@@ -17,6 +17,14 @@ Repository:
 
 - https://github.com/meafmira/gossip-monday
 
+## Working memory
+
+Use `PROGRESS.md` as persistent working memory for coding agents:
+
+- read `PROGRESS.md` at the start of every task/session before making changes;
+- log only findings, decisions, blockers, and follow-ups that are useful for future work;
+- keep it concise and remove stale, duplicated, or unnecessary notes when encountered.
+
 ## Commands
 
 ```bash
