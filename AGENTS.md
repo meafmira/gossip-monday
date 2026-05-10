@@ -87,7 +87,7 @@ Automatic deployment is configured in `.github/workflows/deploy.yml`:
 
 - trigger: push to `main` or manual `workflow_dispatch`;
 - setup: Node `24` for Astro compatibility, then `oven-sh/setup-bun@v2` with Bun `1.3.6`;
-- build/backend deploy: `bun install --frozen-lockfile --network-concurrency 1 --registry https://registry.npmjs.org`, then `bunx convex deploy --cmd "bun run build" --cmd-url-env-var-name PUBLIC_CONVEX_URL`;
+- build/backend deploy: `bun --dns-result-order=ipv4first install --frozen-lockfile --network-concurrency 1 --registry https://registry.npmjs.org`, then `bunx convex deploy --cmd "bun run build" --cmd-url-env-var-name PUBLIC_CONVEX_URL`;
 - deploy target: `gh-pages` branch;
 - action: `peaceiris/actions-gh-pages@v4`;
 - `keep_files: true` is intentional so old hashed assets are not deleted.
@@ -136,6 +136,8 @@ The seed mutation is idempotent: it upserts seeded content and does not wipe use
 Local development requires `PUBLIC_CONVEX_URL` because Astro only exposes `PUBLIC_` variables to browser code. Run `bunx convex dev`, then copy `CONVEX_URL` from `.env.local` into `PUBLIC_CONVEX_URL`.
 
 Production GitHub Actions deployment requires a `CONVEX_DEPLOY_KEY` secret. `convex deploy --cmd ... --cmd-url-env-var-name PUBLIC_CONVEX_URL` injects the production Convex URL into the Astro build.
+
+GitHub Actions uses `bun --dns-result-order=ipv4first install ...` because the runner repeatedly hit socket errors while downloading new Convex-related tarballs with Bun's default DNS order.
 
 ## Content agreements
 
