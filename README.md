@@ -33,12 +33,12 @@ bun run deploy
 
 ## Деплой
 
-Сайт опубликован через GitHub Pages из ветки `gh-pages`.
+Сайт опубликован через GitHub Pages из ветки `gh-pages` на custom domain с включенным HTTPS.
 
 URL:
 
-- https://meafmira.github.io/gossip-monday/
-- http://meafmira.me/gossip-monday/
+- https://goss.im/
+- https://goss.im/drama/
 
 Деплой происходит автоматически при push в `main` через GitHub Actions.
 

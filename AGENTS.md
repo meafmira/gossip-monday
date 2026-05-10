@@ -8,10 +8,10 @@ This is an Astro prototype for the **“Сплетни по понедельни
 
 The site is a one-page community page with an office tabloid / corporate parody / meme chaos style. The primary language of the site is Russian. Mixed Russian/English corporate jargon is intentional and allowed.
 
-The current public version is deployed with GitHub Pages:
+The current public version is deployed with GitHub Pages on the custom domain:
 
-- http://meafmira.me/gossip-monday/
-- http://meafmira.me/gossip-monday/drama/
+- https://goss.im/
+- https://goss.im/drama/
 
 Repository:
 
@@ -40,8 +40,9 @@ Deploys happen automatically on every push to `main` via `.github/workflows/depl
 - `src/data/club.ts` — members, backlog items, reports, gallery events.
 - `src/styles/global.css` — all global styles.
 - `public/favicon.svg` — favicon.
+- `public/CNAME` — GitHub Pages custom domain (`goss.im`).
 - `public/.nojekyll` — required for GitHub Pages so the `_astro` asset directory is not ignored.
-- `astro.config.mjs` — Astro config, including `base: '/gossip-monday'`.
+- `astro.config.mjs` — Astro config, including `site: 'https://goss.im'` and `base: '/'`.
 
 ## Important technical details
 
@@ -59,13 +60,13 @@ If it is removed, the site may load as unstyled HTML because CSS assets return 4
 
 ### Base path
 
-The site is published as a GitHub project page, so the base path is:
+The site is published on its own domain, so the base path is:
 
 ```js
-base: '/gossip-monday'
+base: '/'
 ```
 
-When adding internal links, do not hardcode `/drama`, `/favicon.svg`, etc. without considering `import.meta.env.BASE_URL`.
+When adding internal links, keep using `import.meta.env.BASE_URL` helpers so local/dev and future hosting changes remain safe.
 
 Pages currently use:
 
@@ -166,20 +167,19 @@ This is not authentication and not real protection. If sensitive content is adde
 
 ## Custom domain / HTTPS
 
-GitHub Pages currently serves the site through the account custom domain:
+GitHub Pages serves the site through the custom domain with HTTPS enabled:
 
 ```text
-http://meafmira.me/gossip-monday/
+https://goss.im/
 ```
 
-At the time this file was written, HTTPS for `meafmira.me` does not work correctly because the certificate does not match the domain. DNS points to old GitHub Pages IPs:
+Keep this file committed so GitHub Pages preserves the domain on deploy:
 
 ```text
-192.30.252.153
-192.30.252.154
+public/CNAME
 ```
 
-For proper HTTPS, update the domain A records to the current GitHub Pages IPs:
+The repository Pages settings should keep **Enforce HTTPS** enabled. If DNS is ever changed, point the domain back to the current GitHub Pages IPs before troubleshooting certificates:
 
 ```text
 185.199.108.153
@@ -196,8 +196,6 @@ Optional AAAA records:
 2606:50c0:8002::153
 2606:50c0:8003::153
 ```
-
-After DNS propagation, enable **Enforce HTTPS** in `meafmira/meafmira.github.io → Settings → Pages`.
 
 ## Before replying to the user
 
