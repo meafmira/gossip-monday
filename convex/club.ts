@@ -1,6 +1,7 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { LIMITS, LIST_LIMITS } from './limits';
+import { assertIsoDate, trimOptional, trimRequired } from './validation';
 
 const rsvpStatus = v.union(
   v.literal('yes'),
@@ -8,35 +9,6 @@ const rsvpStatus = v.union(
   v.literal('maybe'),
   v.literal('unknown'),
 );
-
-function trimRequired(value: string, label: string, maxLength: number): string {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    throw new Error(`${label} не может быть пустым.`);
-  }
-  if (trimmed.length > maxLength) {
-    throw new Error(`${label} слишком длинный: максимум ${maxLength} символов.`);
-  }
-  return trimmed;
-}
-
-function trimOptional(value: string, maxLength: number): string {
-  const trimmed = value.trim();
-  if (trimmed.length > maxLength) {
-    throw new Error(`Слишком длинный текст: максимум ${maxLength} символов.`);
-  }
-  return trimmed;
-}
-
-function assertIsoDate(value: string, label: string): void {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    throw new Error(`${label} должна быть датой в формате YYYY-MM-DD.`);
-  }
-  const timestamp = Date.parse(`${value}T00:00:00Z`);
-  if (Number.isNaN(timestamp)) {
-    throw new Error(`${label} выглядит как дата, но календарь с этим не согласен.`);
-  }
-}
 
 export const getPageData = query({
   args: {},

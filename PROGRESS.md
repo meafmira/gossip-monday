@@ -18,4 +18,11 @@ Persistent working memory for coding agents in this repository. Read this file b
   - `convex/limits.ts` holds shared content limits (server validation in `convex/club.ts` + form `maxlength` in `Modals.astro`) and `LIST_LIMITS` caps for the page query. Update limits there only.
   - `getPageData` now uses `.take()` for backlog/vacations to bound the realtime payload.
   - Lightbox is a native `<dialog>` (Escape + focus return + backdrop), matching the other modals.
+- 2026-06-03: Code-quality / tooling pass.
+  - Tooling stack: **oxlint** (lint, TS/JS only) + **Prettier** with `prettier-plugin-astro` (format). Configs: `.oxlintrc.json`, `.prettierrc.json`, `.prettierignore`. Scripts: `lint`, `format`, `format:check`, `test`. CI runs all of them before build.
+  - oxlint cannot parse `.astro` (false unused-import errors), so `**/*.astro` is excluded from oxlint; Prettier owns `.astro` formatting.
+  - Convex validators extracted to `convex/validation.ts` (pure, no Convex runtime dep) and unit-tested in `tests/validation.test.ts` via `bun test`. Tests live OUTSIDE `convex/` so a `bun:test` import does not break `convex deploy` typecheck.
+  - Fonts load non-blocking: `media="print"` link (`#fonts-css`) promoted to `all` by an `is:inline` head script in `src/layouts/Base.astro`, with a `<noscript>` fallback. Used `is:inline` (not an `onload=` attribute) to avoid an Astro `ts(6133)` hint.
+  - `src/scripts/app.ts` form reads/writes go through `fieldValue`/`fieldChecked`/`setField`/`setChecked` helpers instead of repeated `namedItem(...) as ...` casts.
+- Intentionally NOT changed: single big `getPageData` subscription (fine at 8 members), `.agents/skills/` (intentional agent tooling), countdown timezone logic (functionally correct).
 - Open follow-up (product decision, not done): Convex mutations are still unauthenticated — anyone with `PUBLIC_CONVEX_URL` can write/overwrite any member's RSVP and spam tables. Needs real auth or a rate-limiter (`@convex-dev/rate-limiter`) if content ever becomes sensitive.

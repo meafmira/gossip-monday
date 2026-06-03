@@ -8,6 +8,9 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@800;900&display=swap';
 ---
 
 <html lang="ru">
@@ -18,10 +21,22 @@ const { title, description } = Astro.props;
     <meta name="description" content={description} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@800;900&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Load fonts without blocking first paint: fetch as `print`, then promote to `all`. -->
+    <link rel="preload" as="style" href={fontsHref} />
+    <link id="fonts-css" rel="stylesheet" href={fontsHref} media="print" />
+    <noscript><link rel="stylesheet" href={fontsHref} /></noscript>
+    <script is:inline>
+      (() => {
+        const link = document.getElementById('fonts-css');
+        if (!link) return;
+        const promote = () => {
+          link.media = 'all';
+        };
+        // `sheet` is set once the stylesheet has loaded (covers the cached case).
+        if (link.sheet) promote();
+        else link.addEventListener('load', promote, { once: true });
+      })();
+    </script>
     <link rel="icon" href={`${base}favicon.svg`} />
     <title>{title}</title>
   </head>
