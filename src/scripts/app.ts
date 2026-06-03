@@ -8,6 +8,7 @@ import {
   type RsvpEntry,
   type VacationItem,
 } from '../lib/api/gossip';
+import { canOpenDoor, countdownState, formatDate } from '../lib/club-logic';
 
 const gossipApi = createGossipApi();
 let currentData: PageData | null = null;
@@ -51,17 +52,6 @@ function el(
 
 function text(content: string): Text {
   return document.createTextNode(content);
-}
-
-function formatDate(value: string): string {
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(date);
 }
 
 function errorMessage(error: unknown): string {
@@ -163,10 +153,9 @@ function renderRsvp(data: PageData): void {
     board.append(el('div', { className: 'rsvp-row' }, [avatar, el('div', {}, infoChildren), btn]));
   }
 
-  const activeDoorPeople = data.members.filter((member) => {
-    const rsvp = data.rsvps[member.slug];
-    return (rsvp?.canLetIn ?? member.canLetIn) && (rsvp?.status ?? 'unknown') !== 'no';
-  });
+  const activeDoorPeople = data.members.filter((member) =>
+    canOpenDoor(member, data.rsvps[member.slug]),
+  );
   const alertEl = document.getElementById('access-alert')!;
   alertEl.replaceChildren();
 
@@ -368,27 +357,19 @@ function renderUnavailable(error: Error): void {
 function setupCountdown(): void {
   const root = document.querySelector<HTMLElement>('[data-countdown]');
   if (!root) return;
-  const target = new Date(root.dataset.countdown!).getTime();
-
-  // Check if it's the same calendar day.
-  const targetDate = new Date(root.dataset.countdown!);
-  const isToday = (now: Date) =>
-    now.getFullYear() === targetDate.getFullYear() &&
-    now.getMonth() === targetDate.getMonth() &&
-    now.getDate() === targetDate.getDate();
+  const target = new Date(root.dataset.countdown!);
 
   let timerId: number | undefined;
 
   const update = () => {
-    const now = new Date();
-    const distance = target - now.getTime();
+    const state = countdownState(target, new Date());
 
-    if (isToday(now)) {
+    if (state.kind === 'today') {
       root.replaceChildren(el('div', { className: 'countdown-today' }, ['🎉 Сегодня!']));
       return;
     }
 
-    if (distance < 0) {
+    if (state.kind === 'past') {
       root.replaceChildren(
         el('div', { className: 'countdown-past' }, ['Уже было — ждём следующую встречу']),
       );
@@ -397,14 +378,10 @@ function setupCountdown(): void {
       return;
     }
 
-    const days = Math.floor(distance / 86400000);
-    const hours = Math.floor((distance % 86400000) / 3600000);
-    const minutes = Math.floor((distance % 3600000) / 60000);
-    const seconds = Math.floor((distance % 60000) / 1000);
-    root.querySelector('[data-days]')!.textContent = String(days);
-    root.querySelector('[data-hours]')!.textContent = String(hours);
-    root.querySelector('[data-minutes]')!.textContent = String(minutes);
-    root.querySelector('[data-seconds]')!.textContent = String(seconds);
+    root.querySelector('[data-days]')!.textContent = String(state.days);
+    root.querySelector('[data-hours]')!.textContent = String(state.hours);
+    root.querySelector('[data-minutes]')!.textContent = String(state.minutes);
+    root.querySelector('[data-seconds]')!.textContent = String(state.seconds);
   };
   update();
   timerId = window.setInterval(update, 1000);
