@@ -76,7 +76,7 @@ If it is removed, the site may load as unstyled HTML because CSS assets return 4
 The site is published on its own domain, so the base path is:
 
 ```js
-base: '/'
+base: '/';
 ```
 
 When adding internal links, keep using `import.meta.env.BASE_URL` helpers so local/dev and future hosting changes remain safe.

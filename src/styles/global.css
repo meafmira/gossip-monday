@@ -22,9 +22,14 @@ html {
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(255, 45, 85, 0.18), transparent 32rem),
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background: radial-gradient(circle at top left, rgba(255, 45, 85, 0.18), transparent 32rem),
     radial-gradient(circle at top right, rgba(199, 255, 0, 0.22), transparent 26rem),
     repeating-linear-gradient(0deg, rgba(22, 22, 22, 0.018) 0 1px, transparent 1px 8px),
     var(--paper);
@@ -205,7 +210,9 @@ button {
   text-transform: uppercase;
   text-decoration: none;
   box-shadow: 5px 5px 0 var(--ink);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .btn:hover {
@@ -326,8 +333,12 @@ button {
 }
 
 @keyframes ticker {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .section {
@@ -486,10 +497,18 @@ button {
   background: var(--paper-2);
 }
 
-.status-yes { background: #bbf7d0; }
-.status-no { background: #fecaca; }
-.status-maybe { background: #fde68a; }
-.status-unknown { background: #e5e7eb; }
+.status-yes {
+  background: #bbf7d0;
+}
+.status-no {
+  background: #fecaca;
+}
+.status-maybe {
+  background: #fde68a;
+}
+.status-unknown {
+  background: #e5e7eb;
+}
 
 #rsvp-board {
   margin-top: 18px;
@@ -555,9 +574,8 @@ button {
 .photo-tile {
   aspect-ratio: 1 / 1;
   border: 2px solid var(--ink);
-  background:
-    linear-gradient(135deg, rgba(255,45,85,.75), rgba(199,255,0,.75)),
-    repeating-linear-gradient(45deg, transparent 0 10px, rgba(22,22,22,.08) 10px 20px);
+  background: linear-gradient(135deg, rgba(255, 45, 85, 0.75), rgba(199, 255, 0, 0.75)),
+    repeating-linear-gradient(45deg, transparent 0 10px, rgba(22, 22, 22, 0.08) 10px 20px);
   display: grid;
   place-items: center;
   padding: 12px;
@@ -746,8 +764,7 @@ textarea {
   width: min(760px, 100%);
   aspect-ratio: 16 / 10;
   border: 4px solid white;
-  background:
-    linear-gradient(135deg, var(--hot), var(--acid));
+  background: linear-gradient(135deg, var(--hot), var(--acid));
   display: grid;
   place-items: center;
   text-align: center;

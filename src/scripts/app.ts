@@ -1,4 +1,13 @@
-import { createGossipApi, type BacklogItem, type GalleryEvent, type Member, type PageData, type Report, type RsvpEntry, type VacationItem } from '../lib/api/gossip';
+import {
+  createGossipApi,
+  type BacklogItem,
+  type GalleryEvent,
+  type Member,
+  type PageData,
+  type Report,
+  type RsvpEntry,
+  type VacationItem,
+} from '../lib/api/gossip';
 
 const gossipApi = createGossipApi();
 let currentData: PageData | null = null;
@@ -17,7 +26,11 @@ function memberBySlug(slug: string): Member | undefined {
   return currentData?.members.find((member) => member.slug === slug);
 }
 
-function el(tag: string, attrs?: Record<string, string>, children?: (Node | string)[]): HTMLElement {
+function el(
+  tag: string,
+  attrs?: Record<string, string>,
+  children?: (Node | string)[],
+): HTMLElement {
   const node = document.createElement(tag);
   if (attrs) {
     for (const [key, value] of Object.entries(attrs)) {
@@ -57,10 +70,7 @@ function errorMessage(error: unknown): string {
 
 function renderNotice(target: HTMLElement, title: string, body: string): void {
   target.replaceChildren(
-    el('article', { className: 'section-card' }, [
-      el('h3', {}, [title]),
-      el('p', {}, [body]),
-    ]),
+    el('article', { className: 'section-card' }, [el('h3', {}, [title]), el('p', {}, [body])]),
   );
 }
 
@@ -91,7 +101,11 @@ function renderRsvp(data: PageData): void {
   board.replaceChildren();
 
   if (!data.members.length) {
-    renderNotice(board, 'Участники не найдены', 'Convex подключён, но initial seed ещё не запущен.');
+    renderNotice(
+      board,
+      'Участники не найдены',
+      'Convex подключён, но initial seed ещё не запущен.',
+    );
   }
 
   for (const member of data.members) {
@@ -105,7 +119,9 @@ function renderRsvp(data: PageData): void {
     };
     const [label, cls] = statusCopy[item.status] || statusCopy.unknown;
 
-    const avatar = el('div', { className: 'avatar', style: `background:${member.color}` }, [member.avatar]);
+    const avatar = el('div', { className: 'avatar', style: `background:${member.color}` }, [
+      member.avatar,
+    ]);
     const nameEl = el('strong', {}, [member.name]);
     const statusPill = el('span', { className: `status-pill ${cls}` }, [label]);
     const infoChildren: (Node | string)[] = [nameEl, document.createElement('br'), statusPill];
@@ -132,13 +148,17 @@ function renderRsvp(data: PageData): void {
     alertEl.className = 'alert ok';
     alertEl.append(
       el('strong', {}, ['Office access: под контролем']),
-      text(`Дежурные шаманы входной двери: ${activeDoorPeople.map((member) => member.name).join(', ')}.`),
+      text(
+        `Дежурные шаманы входной двери: ${activeDoorPeople.map((member) => member.name).join(', ')}.`,
+      ),
     );
   } else {
     alertEl.className = 'alert';
     alertEl.append(
       el('strong', {}, ['КРАСНЫЙ УРОВЕНЬ ДРАМЫ']),
-      text('Ни один авторизованный офисный шаман не подтвердил возможность открыть дверь. Встреча рискует стать уличным стендапом у входа.'),
+      text(
+        'Ни один авторизованный офисный шаман не подтвердил возможность открыть дверь. Встреча рискует стать уличным стендапом у входа.',
+      ),
     );
   }
 }
@@ -148,7 +168,11 @@ function renderBacklog(backlog: BacklogItem[]): void {
   list.replaceChildren();
 
   if (!backlog.length) {
-    renderNotice(list, 'Backlog пуст', 'Подозрительно тихо. Добавьте первую синхронизированную сплетню.');
+    renderNotice(
+      list,
+      'Backlog пуст',
+      'Подозрительно тихо. Добавьте первую синхронизированную сплетню.',
+    );
     return;
   }
 
@@ -251,7 +275,11 @@ function renderGallery(events: GalleryEvent[]): void {
   grid.replaceChildren();
 
   if (!events.length) {
-    renderNotice(grid, 'Фото-доказательства отсутствуют', 'Комитет временно работает без визуальных улик.');
+    renderNotice(
+      grid,
+      'Фото-доказательства отсутствуют',
+      'Комитет временно работает без визуальных улик.',
+    );
     return;
   }
 
@@ -259,7 +287,11 @@ function renderGallery(events: GalleryEvent[]): void {
     const photoGrid = el('div', { className: 'gallery-grid event-photos' });
     for (const photo of event.photos) {
       photoGrid.append(
-        el('button', { className: 'photo-tile', 'data-lightbox': photo, 'aria-label': `Открыть ${photo}` }, [photo]),
+        el(
+          'button',
+          { className: 'photo-tile', 'data-lightbox': photo, 'aria-label': `Открыть ${photo}` },
+          [photo],
+        ),
       );
     }
 
@@ -289,10 +321,7 @@ function renderUnavailable(error: Error): void {
   const accessAlert = document.getElementById('access-alert');
   if (accessAlert) {
     accessAlert.className = 'alert';
-    accessAlert.replaceChildren(
-      el('strong', {}, ['Convex недоступен']),
-      text(` ${message}`),
-    );
+    accessAlert.replaceChildren(el('strong', {}, ['Convex недоступен']), text(` ${message}`));
   }
 
   const targets = [
@@ -334,7 +363,9 @@ function setupCountdown(): void {
     }
 
     if (distance < 0) {
-      root.replaceChildren(el('div', { className: 'countdown-past' }, ['Уже было — ждём следующую встречу']));
+      root.replaceChildren(
+        el('div', { className: 'countdown-past' }, ['Уже было — ждём следующую встречу']),
+      );
       // The meeting is over; nothing left to tick down.
       if (timerId !== undefined) window.clearInterval(timerId);
       return;
@@ -373,9 +404,9 @@ function closeModal(modal: HTMLDialogElement): void {
 
 async function withFormLock(form: HTMLFormElement, action: () => Promise<void>): Promise<void> {
   const controls = Array.from(
-    form.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>(
-      'button, input, select, textarea',
-    ),
+    form.querySelectorAll<
+      HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement
+    >('button, input, select, textarea'),
   );
 
   controls.forEach((control) => {
@@ -522,7 +553,9 @@ document.getElementById('vacation-form')!.addEventListener('submit', (event) => 
 // Join form — save shared applications in Convex and show inline confirmation.
 const joinForm = document.querySelector('#join-modal form') as HTMLFormElement;
 const joinModal = document.getElementById('join-modal') as HTMLDialogElement;
-const joinFormOriginalChildren = Array.from(joinForm.children).map((child) => child.cloneNode(true));
+const joinFormOriginalChildren = Array.from(joinForm.children).map((child) =>
+  child.cloneNode(true),
+);
 
 function restoreJoinForm(): void {
   joinForm.replaceChildren(...joinFormOriginalChildren.map((child) => child.cloneNode(true)));
@@ -554,7 +587,9 @@ joinForm.addEventListener('submit', (event) => {
     const msg = el('p', { className: 'join-success-text' }, [
       'Ваша заявка зафиксирована в общем Convex-архиве. Комитет теперь не сможет притвориться, что ничего не видел.',
     ]);
-    const closeBtn = el('button', { className: 'btn hot join-success-close', type: 'button' }, ['Закрыть']);
+    const closeBtn = el('button', { className: 'btn hot join-success-close', type: 'button' }, [
+      'Закрыть',
+    ]);
     closeBtn.addEventListener('click', () => {
       closeModal(joinModal);
     });

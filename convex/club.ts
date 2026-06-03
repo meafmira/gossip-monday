@@ -1,12 +1,12 @@
-import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
-import { LIMITS, LIST_LIMITS } from "./limits";
+import { mutation, query } from './_generated/server';
+import { v } from 'convex/values';
+import { LIMITS, LIST_LIMITS } from './limits';
 
 const rsvpStatus = v.union(
-  v.literal("yes"),
-  v.literal("no"),
-  v.literal("maybe"),
-  v.literal("unknown"),
+  v.literal('yes'),
+  v.literal('no'),
+  v.literal('maybe'),
+  v.literal('unknown'),
 );
 
 function trimRequired(value: string, label: string, maxLength: number): string {
@@ -41,31 +41,23 @@ function assertIsoDate(value: string, label: string): void {
 export const getPageData = query({
   args: {},
   handler: async (ctx) => {
-    const members = await ctx.db
-      .query("members")
-      .withIndex("by_sort_order")
-      .order("asc")
-      .collect();
-    const rsvps = await ctx.db.query("rsvps").collect();
+    const members = await ctx.db.query('members').withIndex('by_sort_order').order('asc').collect();
+    const rsvps = await ctx.db.query('rsvps').collect();
     const backlogItems = await ctx.db
-      .query("backlogItems")
-      .withIndex("by_created_at")
-      .order("desc")
+      .query('backlogItems')
+      .withIndex('by_created_at')
+      .order('desc')
       .take(LIST_LIMITS.backlog);
     const vacations = await ctx.db
-      .query("vacations")
-      .withIndex("by_created_at")
-      .order("desc")
+      .query('vacations')
+      .withIndex('by_created_at')
+      .order('desc')
       .take(LIST_LIMITS.vacations);
-    const reports = await ctx.db
-      .query("reports")
-      .withIndex("by_sort_order")
-      .order("asc")
-      .collect();
+    const reports = await ctx.db.query('reports').withIndex('by_sort_order').order('asc').collect();
     const galleryEvents = await ctx.db
-      .query("galleryEvents")
-      .withIndex("by_sort_order")
-      .order("asc")
+      .query('galleryEvents')
+      .withIndex('by_sort_order')
+      .order('asc')
       .collect();
 
     const rsvpsByMember = new Map(rsvps.map((rsvp) => [rsvp.memberSlug, rsvp]));
@@ -90,8 +82,8 @@ export const getPageData = query({
             {
               id: rsvp?._id ?? null,
               memberSlug: member.slug,
-              status: rsvp?.status ?? "unknown",
-              comment: rsvp?.comment ?? "",
+              status: rsvp?.status ?? 'unknown',
+              comment: rsvp?.comment ?? '',
               canLetIn: rsvp?.canLetIn ?? member.canLetIn,
               updatedAt: rsvp?.updatedAt ?? 0,
             },
@@ -139,18 +131,18 @@ export const updateRsvp = mutation({
   },
   handler: async (ctx, args) => {
     const member = await ctx.db
-      .query("members")
-      .withIndex("by_slug", (q) => q.eq("slug", args.memberSlug))
+      .query('members')
+      .withIndex('by_slug', (q) => q.eq('slug', args.memberSlug))
       .unique();
 
     if (!member) {
-      throw new Error("Участник не найден. Возможно, он ушёл в witness protection.");
+      throw new Error('Участник не найден. Возможно, он ушёл в witness protection.');
     }
 
     const comment = trimOptional(args.comment, LIMITS.rsvpComment);
     const existing = await ctx.db
-      .query("rsvps")
-      .withIndex("by_member_slug", (q) => q.eq("memberSlug", args.memberSlug))
+      .query('rsvps')
+      .withIndex('by_member_slug', (q) => q.eq('memberSlug', args.memberSlug))
       .unique();
 
     const payload = {
@@ -166,7 +158,7 @@ export const updateRsvp = mutation({
       return existing._id;
     }
 
-    return await ctx.db.insert("rsvps", payload);
+    return await ctx.db.insert('rsvps', payload);
   },
 });
 
@@ -177,10 +169,10 @@ export const addBacklogItem = mutation({
     anonymous: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const title = trimRequired(args.title, "Заголовок", LIMITS.backlogTitle);
-    const author = trimOptional(args.author, LIMITS.backlogAuthor) || "Редакция";
+    const title = trimRequired(args.title, 'Заголовок', LIMITS.backlogTitle);
+    const author = trimOptional(args.author, LIMITS.backlogAuthor) || 'Редакция';
 
-    return await ctx.db.insert("backlogItems", {
+    return await ctx.db.insert('backlogItems', {
       title,
       author,
       anonymous: args.anonymous,
@@ -198,24 +190,26 @@ export const addVacation = mutation({
   },
   handler: async (ctx, args) => {
     const member = await ctx.db
-      .query("members")
-      .withIndex("by_slug", (q) => q.eq("slug", args.memberSlug))
+      .query('members')
+      .withIndex('by_slug', (q) => q.eq('slug', args.memberSlug))
       .unique();
 
     if (!member) {
-      throw new Error("Участник для отсутствия не найден.");
+      throw new Error('Участник для отсутствия не найден.');
     }
 
-    assertIsoDate(args.from, "Дата начала");
-    assertIsoDate(args.to, "Дата окончания");
+    assertIsoDate(args.from, 'Дата начала');
+    assertIsoDate(args.to, 'Дата окончания');
 
     if (Date.parse(`${args.to}T00:00:00Z`) < Date.parse(`${args.from}T00:00:00Z`)) {
-      throw new Error("Дата окончания не может быть раньше даты начала. Даже для драматичного отпуска.");
+      throw new Error(
+        'Дата окончания не может быть раньше даты начала. Даже для драматичного отпуска.',
+      );
     }
 
-    const reason = trimRequired(args.reason, "Причина", LIMITS.vacationReason);
+    const reason = trimRequired(args.reason, 'Причина', LIMITS.vacationReason);
 
-    return await ctx.db.insert("vacations", {
+    return await ctx.db.insert('vacations', {
       memberSlug: args.memberSlug,
       from: args.from,
       to: args.to,
@@ -232,11 +226,11 @@ export const addJoinApplication = mutation({
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const name = trimRequired(args.name, "Имя", LIMITS.joinName);
-    const invitedBy = trimRequired(args.invitedBy, "Кто пригласил", LIMITS.joinInvitedBy);
-    const reason = trimRequired(args.reason, "Причина", LIMITS.joinReason);
+    const name = trimRequired(args.name, 'Имя', LIMITS.joinName);
+    const invitedBy = trimRequired(args.invitedBy, 'Кто пригласил', LIMITS.joinInvitedBy);
+    const reason = trimRequired(args.reason, 'Причина', LIMITS.joinReason);
 
-    return await ctx.db.insert("joinApplications", {
+    return await ctx.db.insert('joinApplications', {
       name,
       invitedBy,
       reason,

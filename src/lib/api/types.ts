@@ -90,10 +90,7 @@ export interface AddJoinApplicationInput {
 
 export interface GossipApi {
   readonly configured: boolean;
-  subscribePageData(
-    onData: (data: PageData) => void,
-    onError: (error: Error) => void,
-  ): () => void;
+  subscribePageData(onData: (data: PageData) => void, onError: (error: Error) => void): () => void;
   updateRsvp(input: UpdateRsvpInput): Promise<void>;
   addBacklogItem(input: AddBacklogInput): Promise<void>;
   addVacation(input: AddVacationInput): Promise<void>;

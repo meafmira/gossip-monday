@@ -1,11 +1,11 @@
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
+import { defineSchema, defineTable } from 'convex/server';
+import { v } from 'convex/values';
 
 const rsvpStatus = v.union(
-  v.literal("yes"),
-  v.literal("no"),
-  v.literal("maybe"),
-  v.literal("unknown"),
+  v.literal('yes'),
+  v.literal('no'),
+  v.literal('maybe'),
+  v.literal('unknown'),
 );
 
 export default defineSchema({
@@ -20,8 +20,8 @@ export default defineSchema({
     color: v.string(),
     sortOrder: v.number(),
   })
-    .index("by_slug", ["slug"])
-    .index("by_sort_order", ["sortOrder"]),
+    .index('by_slug', ['slug'])
+    .index('by_sort_order', ['sortOrder']),
 
   rsvps: defineTable({
     memberSlug: v.string(),
@@ -29,7 +29,7 @@ export default defineSchema({
     comment: v.string(),
     canLetIn: v.boolean(),
     updatedAt: v.number(),
-  }).index("by_member_slug", ["memberSlug"]),
+  }).index('by_member_slug', ['memberSlug']),
 
   backlogItems: defineTable({
     seedId: v.optional(v.string()),
@@ -38,8 +38,8 @@ export default defineSchema({
     anonymous: v.boolean(),
     createdAt: v.number(),
   })
-    .index("by_seed_id", ["seedId"])
-    .index("by_created_at", ["createdAt"]),
+    .index('by_seed_id', ['seedId'])
+    .index('by_created_at', ['createdAt']),
 
   vacations: defineTable({
     seedId: v.optional(v.string()),
@@ -49,16 +49,16 @@ export default defineSchema({
     reason: v.string(),
     createdAt: v.number(),
   })
-    .index("by_seed_id", ["seedId"])
-    .index("by_created_at", ["createdAt"])
-    .index("by_member_slug", ["memberSlug"]),
+    .index('by_seed_id', ['seedId'])
+    .index('by_created_at', ['createdAt'])
+    .index('by_member_slug', ['memberSlug']),
 
   joinApplications: defineTable({
     name: v.string(),
     invitedBy: v.string(),
     reason: v.string(),
     createdAt: v.number(),
-  }).index("by_created_at", ["createdAt"]),
+  }).index('by_created_at', ['createdAt']),
 
   reports: defineTable({
     seedId: v.string(),
@@ -68,8 +68,8 @@ export default defineSchema({
     outcomes: v.array(v.string()),
     sortOrder: v.number(),
   })
-    .index("by_seed_id", ["seedId"])
-    .index("by_sort_order", ["sortOrder"]),
+    .index('by_seed_id', ['seedId'])
+    .index('by_sort_order', ['sortOrder']),
 
   galleryEvents: defineTable({
     seedId: v.string(),
@@ -78,6 +78,6 @@ export default defineSchema({
     photos: v.array(v.string()),
     sortOrder: v.number(),
   })
-    .index("by_seed_id", ["seedId"])
-    .index("by_sort_order", ["sortOrder"]),
+    .index('by_seed_id', ['seedId'])
+    .index('by_sort_order', ['sortOrder']),
 });

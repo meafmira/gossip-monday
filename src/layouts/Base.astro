@@ -18,7 +18,10 @@ const { title, description } = Astro.props;
     <meta name="description" content={description} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@800;900&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@800;900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="icon" href={`${base}favicon.svg`} />
     <title>{title}</title>
   </head>
@@ -41,7 +44,9 @@ const { title, description } = Astro.props;
 
     <footer class="page-shell footer">
       <slot name="footer">
-        <p>© 2026 Сплетни по понедельникам. Официально неофициально. Для тех, у кого есть ссылка.</p>
+        <p>
+          © 2026 Сплетни по понедельникам. Официально неофициально. Для тех, у кого есть ссылка.
+        </p>
       </slot>
     </footer>
   </body>
