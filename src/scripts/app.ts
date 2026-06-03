@@ -68,6 +68,32 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+type FormField = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
+function fieldValue(form: HTMLFormElement, name: string): string {
+  const field = form.elements.namedItem(name);
+  return field instanceof HTMLInputElement ||
+    field instanceof HTMLSelectElement ||
+    field instanceof HTMLTextAreaElement
+    ? field.value
+    : '';
+}
+
+function fieldChecked(form: HTMLFormElement, name: string): boolean {
+  const field = form.elements.namedItem(name);
+  return field instanceof HTMLInputElement && field.checked;
+}
+
+function setField(form: HTMLFormElement, name: string, value: string): void {
+  const field = form.elements.namedItem(name) as FormField | null;
+  if (field) field.value = value;
+}
+
+function setChecked(form: HTMLFormElement, name: string, checked: boolean): void {
+  const field = form.elements.namedItem(name);
+  if (field instanceof HTMLInputElement) field.checked = checked;
+}
+
 function renderNotice(target: HTMLElement, title: string, body: string): void {
   target.replaceChildren(
     el('article', { className: 'section-card' }, [el('h3', {}, [title]), el('p', {}, [body])]),
@@ -467,10 +493,10 @@ document.addEventListener('click', (event) => {
       comment: '',
     };
 
-    (form.elements.namedItem('member') as HTMLSelectElement).value = memberSlug;
-    (form.elements.namedItem('status') as HTMLSelectElement).value = data.status;
-    (form.elements.namedItem('canLetIn') as HTMLInputElement).checked = Boolean(data.canLetIn);
-    (form.elements.namedItem('comment') as HTMLTextAreaElement).value = data.comment || '';
+    setField(form, 'member', memberSlug);
+    setField(form, 'status', data.status);
+    setChecked(form, 'canLetIn', Boolean(data.canLetIn));
+    setField(form, 'comment', data.comment || '');
     openModal('rsvp-modal', editButton);
     return;
   }
@@ -508,10 +534,10 @@ document.getElementById('rsvp-form')!.addEventListener('submit', (event) => {
 
   void withFormLock(form, async () => {
     await gossipApi.updateRsvp({
-      memberSlug: (form.elements.namedItem('member') as HTMLSelectElement).value,
-      status: (form.elements.namedItem('status') as HTMLSelectElement).value as RsvpEntry['status'],
-      canLetIn: (form.elements.namedItem('canLetIn') as HTMLInputElement).checked,
-      comment: (form.elements.namedItem('comment') as HTMLTextAreaElement).value,
+      memberSlug: fieldValue(form, 'member'),
+      status: fieldValue(form, 'status') as RsvpEntry['status'],
+      canLetIn: fieldChecked(form, 'canLetIn'),
+      comment: fieldValue(form, 'comment'),
     });
     closeModal(document.getElementById('rsvp-modal') as HTMLDialogElement);
   });
@@ -524,9 +550,9 @@ document.getElementById('gossip-form')!.addEventListener('submit', (event) => {
 
   void withFormLock(form, async () => {
     await gossipApi.addBacklogItem({
-      title: (form.elements.namedItem('title') as HTMLInputElement).value,
-      author: (form.elements.namedItem('author') as HTMLInputElement).value,
-      anonymous: (form.elements.namedItem('anonymous') as HTMLInputElement).checked,
+      title: fieldValue(form, 'title'),
+      author: fieldValue(form, 'author'),
+      anonymous: fieldChecked(form, 'anonymous'),
     });
     form.reset();
     closeModal(document.getElementById('gossip-modal') as HTMLDialogElement);
@@ -540,10 +566,10 @@ document.getElementById('vacation-form')!.addEventListener('submit', (event) => 
 
   void withFormLock(form, async () => {
     await gossipApi.addVacation({
-      memberSlug: (form.elements.namedItem('member') as HTMLSelectElement).value,
-      from: (form.elements.namedItem('from') as HTMLInputElement).value,
-      to: (form.elements.namedItem('to') as HTMLInputElement).value,
-      reason: (form.elements.namedItem('reason') as HTMLSelectElement).value,
+      memberSlug: fieldValue(form, 'member'),
+      from: fieldValue(form, 'from'),
+      to: fieldValue(form, 'to'),
+      reason: fieldValue(form, 'reason'),
     });
     form.reset();
     closeModal(document.getElementById('vacation-modal') as HTMLDialogElement);
@@ -577,9 +603,9 @@ joinForm.addEventListener('submit', (event) => {
 
   void withFormLock(joinForm, async () => {
     await gossipApi.addJoinApplication({
-      name: (joinForm.elements.namedItem('name') as HTMLInputElement).value,
-      invitedBy: (joinForm.elements.namedItem('invitedBy') as HTMLInputElement).value,
-      reason: (joinForm.elements.namedItem('reason') as HTMLTextAreaElement).value,
+      name: fieldValue(joinForm, 'name'),
+      invitedBy: fieldValue(joinForm, 'invitedBy'),
+      reason: fieldValue(joinForm, 'reason'),
     });
 
     joinForm.replaceChildren();

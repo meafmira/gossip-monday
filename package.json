@@ -4,8 +4,10 @@
     "dev": "astro dev",
     "build": "astro build",
     "check": "astro check",
+    "lint": "oxlint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "test": "bun test",
     "preview": "astro preview",
     "deploy": "bun run build && bunx gh-pages -d dist -b gh-pages -t --add",
     "convex:dev": "convex dev",
@@ -20,6 +22,8 @@
     "typescript": "5.9.3"
   },
   "devDependencies": {
+    "@types/bun": "1.2.4",
+    "oxlint": "0.15.0",
     "prettier": "3.4.2",
     "prettier-plugin-astro": "0.14.1"
   }
