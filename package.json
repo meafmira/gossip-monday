@@ -3,6 +3,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "check": "astro check",
     "preview": "astro preview",
     "deploy": "bun run build && bunx gh-pages -d dist -b gh-pages -t --add",
     "convex:dev": "convex dev",

@@ -114,7 +114,7 @@ function renderRsvp(data: PageData): void {
       infoChildren.push(el('span', { className: 'status-pill status-yes' }, ['🔑 впускает']));
     }
     if (item.comment) {
-      infoChildren.push(el('p', { style: 'margin:8px 0 0;color:#555' }, [`"${item.comment}"`]));
+      infoChildren.push(el('p', { className: 'rsvp-comment' }, [`"${item.comment}"`]));
     }
 
     const btn = el('button', { className: 'btn ghost', 'data-edit-rsvp': member.slug }, ['Update']);
@@ -256,7 +256,7 @@ function renderGallery(events: GalleryEvent[]): void {
   }
 
   for (const event of events) {
-    const photoGrid = el('div', { className: 'gallery-grid', style: 'margin-top: 14px;' });
+    const photoGrid = el('div', { className: 'gallery-grid event-photos' });
     for (const photo of event.photos) {
       photoGrid.append(
         el('button', { className: 'photo-tile', 'data-lightbox': photo, 'aria-label': `Открыть ${photo}` }, [photo]),
@@ -322,6 +322,8 @@ function setupCountdown(): void {
     now.getMonth() === targetDate.getMonth() &&
     now.getDate() === targetDate.getDate();
 
+  let timerId: number | undefined;
+
   const update = () => {
     const now = new Date();
     const distance = target - now.getTime();
@@ -333,6 +335,8 @@ function setupCountdown(): void {
 
     if (distance < 0) {
       root.replaceChildren(el('div', { className: 'countdown-past' }, ['Уже было — ждём следующую встречу']));
+      // The meeting is over; nothing left to tick down.
+      if (timerId !== undefined) window.clearInterval(timerId);
       return;
     }
 
@@ -346,7 +350,7 @@ function setupCountdown(): void {
     root.querySelector('[data-seconds]')!.textContent = String(seconds);
   };
   update();
-  setInterval(update, 1000);
+  timerId = window.setInterval(update, 1000);
 }
 
 // --- Modal helpers ---
@@ -413,6 +417,7 @@ document.addEventListener('click', (event) => {
   const modalButton = target.closest<HTMLElement>('[data-open-modal]');
   if (modalButton) {
     openModal(modalButton.dataset.openModal!, modalButton);
+    return;
   }
 
   const editButton = target.closest<HTMLElement>('[data-edit-rsvp]');
@@ -436,16 +441,32 @@ document.addEventListener('click', (event) => {
     (form.elements.namedItem('canLetIn') as HTMLInputElement).checked = Boolean(data.canLetIn);
     (form.elements.namedItem('comment') as HTMLTextAreaElement).value = data.comment || '';
     openModal('rsvp-modal', editButton);
+    return;
   }
 
   const photo = target.closest<HTMLElement>('[data-lightbox]');
   if (photo) {
-    document.getElementById('lightbox-content')!.textContent = photo.dataset.lightbox!;
-    document.getElementById('lightbox')!.classList.add('active');
+    lightboxContent.textContent = photo.dataset.lightbox!;
+    lightbox.showModal();
+    lastLightboxTrigger = photo;
+    return;
   }
+});
 
-  if (target.id === 'lightbox' || target.id === 'lightbox-content') {
-    document.getElementById('lightbox')!.classList.remove('active');
+// --- Lightbox (native <dialog>) ---
+
+const lightbox = document.getElementById('lightbox') as HTMLDialogElement;
+const lightboxContent = document.getElementById('lightbox-content')!;
+let lastLightboxTrigger: HTMLElement | null = null;
+
+// Any click inside the lightbox (the image button or the backdrop) closes it.
+lightbox.addEventListener('click', () => lightbox.close());
+
+// Return focus to the tile that opened the lightbox (covers the Escape key too).
+lightbox.addEventListener('close', () => {
+  if (lastLightboxTrigger) {
+    lastLightboxTrigger.focus();
+    lastLightboxTrigger = null;
   }
 });
 
@@ -510,7 +531,11 @@ function restoreJoinForm(): void {
 
 joinModal.addEventListener('close', () => {
   if (!joinForm.elements.namedItem('name')) {
+    // The form was replaced with the success message — rebuild the fields.
     restoreJoinForm();
+  } else {
+    // Closed before submitting; clear any half-typed application.
+    joinForm.reset();
   }
 });
 
@@ -525,11 +550,11 @@ joinForm.addEventListener('submit', (event) => {
     });
 
     joinForm.replaceChildren();
-    const heading = el('h2', { style: 'font-family:Playfair Display,Georgia,serif;font-size:34px;letter-spacing:-0.045em;margin:0 0 14px' }, ['✅ Заявка отправлена']);
-    const msg = el('p', { style: 'line-height:1.55;color:#333' }, [
+    const heading = el('h2', { className: 'join-success-title' }, ['✅ Заявка отправлена']);
+    const msg = el('p', { className: 'join-success-text' }, [
       'Ваша заявка зафиксирована в общем Convex-архиве. Комитет теперь не сможет притвориться, что ничего не видел.',
     ]);
-    const closeBtn = el('button', { className: 'btn hot', type: 'button', style: 'margin-top:18px' }, ['Закрыть']);
+    const closeBtn = el('button', { className: 'btn hot join-success-close', type: 'button' }, ['Закрыть']);
     closeBtn.addEventListener('click', () => {
       closeModal(joinModal);
     });
