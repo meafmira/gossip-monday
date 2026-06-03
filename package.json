@@ -4,6 +4,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "check": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "preview": "astro preview",
     "deploy": "bun run build && bunx gh-pages -d dist -b gh-pages -t --add",
     "convex:dev": "convex dev",
@@ -16,5 +18,9 @@
     "astro": "6.2.1",
     "convex": "1.37.0",
     "typescript": "5.9.3"
+  },
+  "devDependencies": {
+    "prettier": "3.4.2",
+    "prettier-plugin-astro": "0.14.1"
   }
 }

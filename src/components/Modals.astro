@@ -8,12 +8,14 @@ import { LIMITS } from '../../convex/limits';
       <h2>RSVP на ланч</h2>
       <button class="close-btn" type="button" data-close-modal aria-label="Закрыть">×</button>
     </div>
-    <label>Кто ты?
+    <label
+      >Кто ты?
       <select name="member" required>
         <option value="">Загрузка участников…</option>
       </select>
     </label>
-    <label>Статус
+    <label
+      >Статус
       <select name="status" required>
         <option value="unknown">Не отметился</option>
         <option value="yes">Приду</option>
@@ -21,9 +23,15 @@ import { LIMITS } from '../../convex/limits';
         <option value="no">Не приду</option>
       </select>
     </label>
-    <label class="inline-check"><input type="checkbox" name="canLetIn" /> Могу пустить людей в офис</label>
-    <label>Комментарий
-      <textarea name="comment" maxlength={LIMITS.rsvpComment} placeholder="Например: приду, если встреча не станет митингом о встрече"></textarea>
+    <label class="inline-check"
+      ><input type="checkbox" name="canLetIn" /> Могу пустить людей в офис</label
+    >
+    <label
+      >Комментарий
+      <textarea
+        name="comment"
+        maxlength={LIMITS.rsvpComment}
+        placeholder="Например: приду, если встреча не станет митингом о встрече"></textarea>
     </label>
     <button class="btn hot" type="submit">Сохранить драматичный статус</button>
   </form>
@@ -35,13 +43,26 @@ import { LIMITS } from '../../convex/limits';
       <h2>Submit gossip</h2>
       <button class="close-btn" type="button" data-close-modal aria-label="Закрыть">×</button>
     </div>
-    <label>Заголовок
-      <input name="title" required maxlength={LIMITS.backlogTitle} placeholder="Та самая история, которую надо обсудить лично" />
+    <label
+      >Заголовок
+      <input
+        name="title"
+        required
+        maxlength={LIMITS.backlogTitle}
+        placeholder="Та самая история, которую надо обсудить лично"
+      />
     </label>
-    <label>Автор
-      <input name="author" maxlength={LIMITS.backlogAuthor} placeholder="Можно оставить пустым и уйти в тень" />
+    <label
+      >Автор
+      <input
+        name="author"
+        maxlength={LIMITS.backlogAuthor}
+        placeholder="Можно оставить пустым и уйти в тень"
+      />
     </label>
-    <label class="inline-check"><input type="checkbox" name="anonymous" /> Анонимно, но с драмой</label>
+    <label class="inline-check"
+      ><input type="checkbox" name="anonymous" /> Анонимно, но с драмой</label
+    >
     <button class="btn acid" type="submit">Добавить в backlog</button>
   </form>
 </dialog>
@@ -52,20 +73,24 @@ import { LIMITS } from '../../convex/limits';
       <h2>Добавить отсутствие</h2>
       <button class="close-btn" type="button" data-close-modal aria-label="Закрыть">×</button>
     </div>
-    <label>Участник
+    <label
+      >Участник
       <select name="member" required>
         <option value="">Загрузка участников…</option>
       </select>
     </label>
     <div class="grid-2">
-      <label>С
+      <label
+        >С
         <input name="from" type="date" required />
       </label>
-      <label>По
+      <label
+        >По
         <input name="to" type="date" required />
       </label>
     </div>
-    <label>Причина
+    <label
+      >Причина
       <select name="reason" required>
         <option>отпуск</option>
         <option>болею</option>
@@ -85,14 +110,31 @@ import { LIMITS } from '../../convex/limits';
       <h2>Application form</h2>
       <button class="close-btn" type="button" data-close-modal aria-label="Закрыть">×</button>
     </div>
-    <label>Имя
-      <input name="name" required maxlength={LIMITS.joinName} placeholder="Как вас представлять комитету" />
+    <label
+      >Имя
+      <input
+        name="name"
+        required
+        maxlength={LIMITS.joinName}
+        placeholder="Как вас представлять комитету"
+      />
     </label>
-    <label>Кто пригласил
-      <input name="invitedBy" required maxlength={LIMITS.joinInvitedBy} placeholder="Имя участника, который готов рискнуть репутацией" />
+    <label
+      >Кто пригласил
+      <input
+        name="invitedBy"
+        required
+        maxlength={LIMITS.joinInvitedBy}
+        placeholder="Имя участника, который готов рискнуть репутацией"
+      />
     </label>
-    <label>Почему вы хотите вступить?
-      <textarea name="reason" required maxlength={LIMITS.joinReason} placeholder="Опишите ваш опыт в наблюдении странных офисных ситуаций"></textarea>
+    <label
+      >Почему вы хотите вступить?
+      <textarea
+        name="reason"
+        required
+        maxlength={LIMITS.joinReason}
+        placeholder="Опишите ваш опыт в наблюдении странных офисных ситуаций"></textarea>
     </label>
     <button class="btn acid" type="submit">Отправить заявку в void</button>
   </form>

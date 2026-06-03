@@ -49,4 +49,4 @@ jobs:
           publish_dir: ./dist
           publish_branch: gh-pages
           keep_files: true
-          commit_message: "Deploy: ${{ github.sha }}"
+          commit_message: 'Deploy: ${{ github.sha }}'

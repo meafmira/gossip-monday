@@ -21,7 +21,10 @@ function toError(error: unknown): Error {
 class MissingConfigGossipApi implements GossipApi {
   readonly configured = false;
 
-  subscribePageData(_onData: (data: PageData) => void, onError: (error: Error) => void): () => void {
+  subscribePageData(
+    _onData: (data: PageData) => void,
+    onError: (error: Error) => void,
+  ): () => void {
     queueMicrotask(() => {
       onError(
         new Error(

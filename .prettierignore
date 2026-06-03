@@ -1,0 +1,8 @@
+bun.lock
+dist/
+.astro/
+convex/_generated/
+node_modules/
+.agents/
+skills-lock.json
+public/favicon.svg
