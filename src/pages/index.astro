@@ -9,8 +9,7 @@ import ReportsSection from '../components/ReportsSection.astro';
 import GallerySection from '../components/GallerySection.astro';
 import JoinSection from '../components/JoinSection.astro';
 import Modals from '../components/Modals.astro';
-
-const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+import { base } from '../lib/base';
 ---
 
 <Base

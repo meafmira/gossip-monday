@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { LIMITS, LIST_LIMITS } from "./limits";
 
 const rsvpStatus = v.union(
   v.literal("yes"),
@@ -50,12 +51,12 @@ export const getPageData = query({
       .query("backlogItems")
       .withIndex("by_created_at")
       .order("desc")
-      .collect();
+      .take(LIST_LIMITS.backlog);
     const vacations = await ctx.db
       .query("vacations")
       .withIndex("by_created_at")
       .order("desc")
-      .collect();
+      .take(LIST_LIMITS.vacations);
     const reports = await ctx.db
       .query("reports")
       .withIndex("by_sort_order")
@@ -146,7 +147,7 @@ export const updateRsvp = mutation({
       throw new Error("Участник не найден. Возможно, он ушёл в witness protection.");
     }
 
-    const comment = trimOptional(args.comment, 280);
+    const comment = trimOptional(args.comment, LIMITS.rsvpComment);
     const existing = await ctx.db
       .query("rsvps")
       .withIndex("by_member_slug", (q) => q.eq("memberSlug", args.memberSlug))
@@ -176,8 +177,8 @@ export const addBacklogItem = mutation({
     anonymous: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const title = trimRequired(args.title, "Заголовок", 160);
-    const author = trimOptional(args.author, 80) || "Редакция";
+    const title = trimRequired(args.title, "Заголовок", LIMITS.backlogTitle);
+    const author = trimOptional(args.author, LIMITS.backlogAuthor) || "Редакция";
 
     return await ctx.db.insert("backlogItems", {
       title,
@@ -212,7 +213,7 @@ export const addVacation = mutation({
       throw new Error("Дата окончания не может быть раньше даты начала. Даже для драматичного отпуска.");
     }
 
-    const reason = trimRequired(args.reason, "Причина", 80);
+    const reason = trimRequired(args.reason, "Причина", LIMITS.vacationReason);
 
     return await ctx.db.insert("vacations", {
       memberSlug: args.memberSlug,
@@ -231,9 +232,9 @@ export const addJoinApplication = mutation({
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const name = trimRequired(args.name, "Имя", 80);
-    const invitedBy = trimRequired(args.invitedBy, "Кто пригласил", 80);
-    const reason = trimRequired(args.reason, "Причина", 600);
+    const name = trimRequired(args.name, "Имя", LIMITS.joinName);
+    const invitedBy = trimRequired(args.invitedBy, "Кто пригласил", LIMITS.joinInvitedBy);
+    const reason = trimRequired(args.reason, "Причина", LIMITS.joinReason);
 
     return await ctx.db.insert("joinApplications", {
       name,
