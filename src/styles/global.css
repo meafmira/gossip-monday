@@ -436,7 +436,9 @@ button {
   isolation: isolate;
   padding-block: 52px;
   margin-block: 10px;
-  color: var(--paper);
+  /* NB: do NOT set a light `color` here — it cascades into the white member
+     cards and makes their text/badges near-invisible. Only the heading text
+     sits directly on the dark band, and it sets its own colour below. */
 }
 
 .section--band::before {
