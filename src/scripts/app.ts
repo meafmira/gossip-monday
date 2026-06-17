@@ -85,9 +85,44 @@ function setChecked(form: HTMLFormElement, name: string, checked: boolean): void
 }
 
 function renderNotice(target: HTMLElement, title: string, body: string): void {
+  // A status panel, not a card — keeps system messages from nesting inside cards.
   target.replaceChildren(
-    el('article', { className: 'section-card' }, [el('h3', {}, [title]), el('p', {}, [body])]),
+    el('div', { className: 'notice' }, [el('strong', {}, [title]), el('p', {}, [body])]),
   );
+}
+
+// --- Toast confirmations (shared aria-live region) ---
+
+function toastRegion(): HTMLElement {
+  let region = document.getElementById('toast-region');
+  if (!region) {
+    region = el('div', {
+      id: 'toast-region',
+      className: 'toast-region',
+      role: 'status',
+      'aria-live': 'polite',
+    });
+    document.body.append(region);
+  }
+  return region;
+}
+
+function showToast(message: string): void {
+  const toast = el('div', { className: 'toast' }, [message]);
+  toastRegion().append(toast);
+  window.setTimeout(() => toast.remove(), 3600);
+}
+
+// --- Inline form errors (replaces native alert) ---
+
+function clearFormError(form: HTMLFormElement): void {
+  form.querySelector('.form-error')?.remove();
+}
+
+function showFormError(form: HTMLFormElement, message: string): void {
+  clearFormError(form);
+  const banner = el('p', { className: 'form-error', role: 'alert' }, [message]);
+  form.prepend(banner);
 }
 
 function renderMemberOptions(data: PageData): void {
@@ -412,6 +447,7 @@ async function withFormLock(form: HTMLFormElement, action: () => Promise<void>):
     >('button, input, select, textarea'),
   );
 
+  clearFormError(form);
   controls.forEach((control) => {
     control.disabled = true;
   });
@@ -419,7 +455,7 @@ async function withFormLock(form: HTMLFormElement, action: () => Promise<void>):
   try {
     await action();
   } catch (error) {
-    alert(errorMessage(error));
+    showFormError(form, errorMessage(error));
   } finally {
     controls.forEach((control) => {
       control.disabled = false;
@@ -457,7 +493,7 @@ document.addEventListener('click', (event) => {
   const editButton = target.closest<HTMLElement>('[data-edit-rsvp]');
   if (editButton) {
     if (!currentData) {
-      alert('Convex данные ещё загружаются. Подождите драматичную секунду.');
+      showToast('Convex данные ещё загружаются. Подождите драматичную секунду.');
       return;
     }
 
@@ -517,6 +553,7 @@ document.getElementById('rsvp-form')!.addEventListener('submit', (event) => {
       comment: fieldValue(form, 'comment'),
     });
     closeModal(document.getElementById('rsvp-modal') as HTMLDialogElement);
+    showToast('Драматичный статус сохранён');
   });
 });
 
@@ -533,6 +570,7 @@ document.getElementById('gossip-form')!.addEventListener('submit', (event) => {
     });
     form.reset();
     closeModal(document.getElementById('gossip-modal') as HTMLDialogElement);
+    showToast('Сплетня добавлена в backlog');
   });
 });
 
@@ -542,14 +580,22 @@ document.getElementById('vacation-form')!.addEventListener('submit', (event) => 
   const form = event.currentTarget as HTMLFormElement;
 
   void withFormLock(form, async () => {
+    const from = fieldValue(form, 'from');
+    const to = fieldValue(form, 'to');
+    if (from && to && to < from) {
+      showFormError(form, 'Дата «По» не может быть раньше даты «С».');
+      return;
+    }
+
     await gossipApi.addVacation({
       memberSlug: fieldValue(form, 'member'),
-      from: fieldValue(form, 'from'),
-      to: fieldValue(form, 'to'),
+      from,
+      to,
       reason: fieldValue(form, 'reason'),
     });
     form.reset();
     closeModal(document.getElementById('vacation-modal') as HTMLDialogElement);
+    showToast('Исчезновение зафиксировано');
   });
 });
 
