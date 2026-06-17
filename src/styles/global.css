@@ -40,7 +40,7 @@ html {
 body {
   margin: 0;
   font-family:
-    Inter,
+    'Onest',
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
@@ -208,10 +208,12 @@ button {
 
 .headline {
   margin: 0;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Oswald', system-ui, sans-serif;
+  font-weight: 700;
   font-size: clamp(52px, 10vw, 120px);
-  line-height: 0.86;
-  letter-spacing: -0.04em;
+  /* Oswald is condensed; looser line-height keeps Cyrillic caps (Й/Ё) from clipping. */
+  line-height: 0.95;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   text-wrap: balance;
   overflow-wrap: anywhere;
@@ -472,9 +474,10 @@ button {
 
 .section-title {
   margin: 0;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Oswald', system-ui, sans-serif;
+  font-weight: 700;
   font-size: clamp(34px, 5vw, 64px);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.005em;
   text-transform: uppercase;
   text-wrap: balance;
 }
@@ -833,9 +836,10 @@ button {
 
 .modal-head h2 {
   margin: 0;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Oswald', system-ui, sans-serif;
+  font-weight: 700;
   font-size: 34px;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.01em;
 }
 
 .close-btn {
@@ -868,9 +872,10 @@ button {
 
 .join-success-title {
   margin: 0 0 14px;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Oswald', system-ui, sans-serif;
+  font-weight: 700;
   font-size: 34px;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.01em;
 }
 
 .join-success-text {
@@ -992,7 +997,8 @@ textarea {
   display: grid;
   place-items: center;
   text-align: center;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Oswald', system-ui, sans-serif;
+  font-weight: 700;
   font-size: clamp(42px, 9vw, 84px);
   color: white;
   text-shadow: 4px 4px 0 var(--ink);
@@ -1020,7 +1026,7 @@ textarea {
 
   .headline {
     font-size: clamp(42px, 15vw, 60px);
-    line-height: 0.9;
+    line-height: 0.98;
   }
 
   .headline span {
